@@ -4,7 +4,7 @@ datasources:
   - name: Tempo
     type: tempo
     access: proxy
-    url: http://tempo:3200
+    url: http://tempo-server:3200
     uid: tempo
     isDefault: true
     editable: true
