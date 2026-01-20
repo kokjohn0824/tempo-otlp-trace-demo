@@ -34,3 +34,4 @@ tempo-otlp-trace-demo
 
 # Docker volumes
 data/
+tempo-data/
