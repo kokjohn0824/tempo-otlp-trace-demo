@@ -1,4 +1,5 @@
-.PHONY: help build test clean run dev up down logs restart deploy test-apis fmt lint vet docker-build docker-push health check-deps install-deps
+.PHONY: help build test clean run dev up down logs restart deploy test-apis fmt lint vet docker-build docker-push health check-deps install-deps \
+	image-save deploy-image deploy-compose deploy-mappings deploy-full
 
 # 變數定義
 APP_NAME := trace-demo-app
@@ -8,6 +9,16 @@ DOCKER_REGISTRY ?=
 GO_FILES := $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 BASE_URL ?= http://localhost:8080
 PORT ?= 8080
+
+# Remote deployment settings
+REMOTE_HOST ?= 192.168.4.208
+REMOTE_USER ?= root
+REMOTE_PATH ?= /root/trace-demo
+REMOTE_IMAGE_PATH ?= $(REMOTE_PATH)/images
+REMOTE_COMPOSE_DIR ?= $(REMOTE_PATH)
+REMOTE_SERVICE_NAME ?= trace-demo-app
+ARCH ?= amd64
+PLATFORM ?= linux/$(ARCH)
 
 # 顏色輸出
 BLUE := \033[0;34m
@@ -28,6 +39,19 @@ help:
 	@echo "$(GREEN)可用的指令:$(NC)"
 	@echo ""
 	@grep -E '^## ' $(MAKEFILE_LIST) | sed 's/## /  $(YELLOW)/' | sed 's/:/ $(NC)-/' | column -t -s '-'
+	@echo ""
+	@echo "$(GREEN)遠端部署:$(NC)"
+	@echo "  $(YELLOW)image-save$(NC)      - 建立並儲存 Docker image 為 tar 檔案"
+	@echo "  $(YELLOW)deploy-image$(NC)    - 建立、儲存並部署 Docker image 到遠端伺服器"
+	@echo "  $(YELLOW)deploy-compose$(NC)  - 部署 docker-compose.yml 到遠端伺服器"
+	@echo "  $(YELLOW)deploy-mappings$(NC) - 部署 source_code_mappings.json 到遠端伺服器"
+	@echo "  $(YELLOW)deploy-full$(NC)     - 完整部署 (image + compose + mappings + restart)"
+	@echo ""
+	@echo "$(GREEN)變數 (使用 VAR=value 覆寫):$(NC)"
+	@echo "  REMOTE_HOST=$(REMOTE_HOST)"
+	@echo "  REMOTE_USER=$(REMOTE_USER)"
+	@echo "  REMOTE_PATH=$(REMOTE_PATH)"
+	@echo "  ARCH=$(ARCH) (amd64 或 arm64)"
 	@echo ""
 
 ## check-deps: 檢查必要的依賴工具
@@ -298,3 +322,67 @@ ci: fmt vet test docker-build
 ## all: 完整流程 (清理、安裝依賴、測試、建立)
 all: clean install-deps test build docker-build
 	@echo "$(GREEN)✓ 完整建立流程完成$(NC)"
+
+## image-save: 建立並儲存 Docker image 為 tar 檔案
+image-save:
+	@echo "$(BLUE)建立 Docker image for $(PLATFORM)...$(NC)"
+	docker buildx build --platform=$(PLATFORM) --load -t $(DOCKER_IMAGE):$(ARCH) .
+	@echo "$(BLUE)儲存 Docker image 為 tar 檔案...$(NC)"
+	docker save $(DOCKER_IMAGE):$(ARCH) -o $(DOCKER_IMAGE)-$(ARCH).tar
+	@echo "$(GREEN)✓ Image 已儲存: $(DOCKER_IMAGE)-$(ARCH).tar$(NC)"
+
+## deploy-image: 建立、儲存並部署 Docker image 到遠端伺服器
+deploy-image: image-save
+	@echo "$(BLUE)部署 Docker image 到 $(REMOTE_USER)@$(REMOTE_HOST)...$(NC)"
+	@echo "$(YELLOW)建立遠端目錄...$(NC)"
+	@ssh $(REMOTE_USER)@$(REMOTE_HOST) "mkdir -p $(REMOTE_IMAGE_PATH)"
+	@echo "$(YELLOW)上傳 image 檔案...$(NC)"
+	@echo "put $(DOCKER_IMAGE)-$(ARCH).tar $(REMOTE_IMAGE_PATH)/" | sftp $(REMOTE_USER)@$(REMOTE_HOST)
+	@echo "$(YELLOW)在遠端主機載入 Docker image...$(NC)"
+	@ssh $(REMOTE_USER)@$(REMOTE_HOST) "docker load -i $(REMOTE_IMAGE_PATH)/$(DOCKER_IMAGE)-$(ARCH).tar"
+	@echo "$(GREEN)✓ Image 部署完成！$(NC)"
+	@echo "  - Image: $(REMOTE_USER)@$(REMOTE_HOST):$(REMOTE_IMAGE_PATH)/$(DOCKER_IMAGE)-$(ARCH).tar"
+
+## deploy-compose: 部署 docker-compose.yml 到遠端伺服器
+deploy-compose:
+	@echo "$(BLUE)部署 docker-compose 配置到 $(REMOTE_USER)@$(REMOTE_HOST)...$(NC)"
+	@echo "$(YELLOW)建立遠端目錄...$(NC)"
+	@ssh $(REMOTE_USER)@$(REMOTE_HOST) "mkdir -p $(REMOTE_COMPOSE_DIR)"
+	@echo "$(YELLOW)上傳 docker-compose.yml...$(NC)"
+	@echo "put docker-compose.yml $(REMOTE_COMPOSE_DIR)/" | sftp $(REMOTE_USER)@$(REMOTE_HOST)
+	@echo "$(YELLOW)上傳配置檔案...$(NC)"
+	@ssh $(REMOTE_USER)@$(REMOTE_HOST) "mkdir -p $(REMOTE_COMPOSE_DIR)/configs"
+	@echo "put otel-collector.yaml $(REMOTE_COMPOSE_DIR)/" | sftp $(REMOTE_USER)@$(REMOTE_HOST) || true
+	@echo "put tempo.yaml $(REMOTE_COMPOSE_DIR)/" | sftp $(REMOTE_USER)@$(REMOTE_HOST) || true
+	@echo "put grafana-datasources.yaml $(REMOTE_COMPOSE_DIR)/" | sftp $(REMOTE_USER)@$(REMOTE_HOST) || true
+	@echo "$(GREEN)✓ 配置部署完成！$(NC)"
+
+## deploy-mappings: 部署 source_code_mappings.json 到遠端伺服器
+deploy-mappings:
+	@echo "$(BLUE)部署 source code mappings 到 $(REMOTE_USER)@$(REMOTE_HOST)...$(NC)"
+	@echo "$(YELLOW)上傳 source_code_mappings.json...$(NC)"
+	@echo "put source_code_mappings.json $(REMOTE_COMPOSE_DIR)/" | sftp $(REMOTE_USER)@$(REMOTE_HOST)
+	@echo "$(YELLOW)上傳 handlers 目錄...$(NC)"
+	@ssh $(REMOTE_USER)@$(REMOTE_HOST) "mkdir -p $(REMOTE_COMPOSE_DIR)/handlers"
+	@echo "put -r handlers $(REMOTE_COMPOSE_DIR)/" | sftp $(REMOTE_USER)@$(REMOTE_HOST)
+	@echo "$(GREEN)✓ Mappings 部署完成！$(NC)"
+
+## deploy-full: 完整部署 (image + compose + mappings + restart)
+deploy-full: deploy-image deploy-compose deploy-mappings
+	@echo "$(BLUE)在遠端主機重啟服務...$(NC)"
+	@ssh $(REMOTE_USER)@$(REMOTE_HOST) "cd $(REMOTE_COMPOSE_DIR) && docker compose down && docker compose up -d"
+	@echo "$(YELLOW)等待服務啟動...$(NC)"
+	@sleep 10
+	@echo "$(YELLOW)檢查服務健康狀態...$(NC)"
+	@ssh $(REMOTE_USER)@$(REMOTE_HOST) "curl -s http://localhost:8080/health" && echo "$(GREEN)✓ 服務正常運作！$(NC)" || echo "$(RED)⚠ 服務健康檢查失敗$(NC)"
+	@echo ""
+	@echo "$(GREEN)✓ 完整部署成功完成！$(NC)"
+	@echo "  - 主機: $(REMOTE_USER)@$(REMOTE_HOST)"
+	@echo "  - 路徑: $(REMOTE_COMPOSE_DIR)"
+	@echo "  - 服務: $(REMOTE_SERVICE_NAME)"
+	@echo ""
+	@echo "$(YELLOW)訪問服務:$(NC)"
+	@echo "  - API: http://$(REMOTE_HOST):8080"
+	@echo "  - Swagger: http://$(REMOTE_HOST):8080/swagger/"
+	@echo "  - Health: http://$(REMOTE_HOST):8080/health"
+	@echo "  - Grafana: http://$(REMOTE_HOST):3000"
