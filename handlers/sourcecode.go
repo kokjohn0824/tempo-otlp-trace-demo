@@ -90,11 +90,16 @@ func SaveMappings() error {
 	return nil
 }
 
+// SourceCodeRequest represents the request body for source code query
+type SourceCodeRequest struct {
+	SpanName string `json:"spanName"`
+}
+
 // GetSourceCode handles requests to retrieve source code for a span
-// GET /api/source-code?span_name=xxx
+// POST /api/source-code with JSON body: {"spanName": "xxx"}
 func GetSourceCode(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	ctx, span := tracer.Start(ctx, "GET /api/source-code",
+	ctx, span := tracer.Start(ctx, "POST /api/source-code",
 		trace.WithSpanKind(trace.SpanKindServer),
 	)
 	defer span.End()
@@ -104,28 +109,34 @@ func GetSourceCode(w http.ResponseWriter, r *http.Request) {
 		attribute.String("http.route", "/api/source-code"),
 	)
 
-	// Get query parameter
-	spanName := r.URL.Query().Get("span_name")
+	// Parse request body
+	var req SourceCodeRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "invalid request")
+		http.Error(w, "Invalid JSON body", http.StatusBadRequest)
+		return
+	}
 
-	if spanName == "" {
+	if req.SpanName == "" {
 		span.RecordError(fmt.Errorf("missing required parameter"))
 		span.SetStatus(codes.Error, "missing parameter")
-		http.Error(w, "Missing required parameter: span_name", http.StatusBadRequest)
+		http.Error(w, "Missing required parameter: spanName", http.StatusBadRequest)
 		return
 	}
 
 	span.SetAttributes(
-		attribute.String("span.name", spanName),
+		attribute.String("span.name", req.SpanName),
 	)
 
 	// Look up source code mapping
 	mappingsLock.RLock()
-	mapping, found := mappings[spanName]
+	mapping, found := mappings[req.SpanName]
 	mappingsLock.RUnlock()
 
 	if !found {
 		span.SetStatus(codes.Error, "mapping not found")
-		http.Error(w, fmt.Sprintf("No source code mapping found for span: %s", spanName), http.StatusNotFound)
+		http.Error(w, fmt.Sprintf("No source code mapping found for span: %s", req.SpanName), http.StatusNotFound)
 		return
 	}
 
@@ -140,7 +151,7 @@ func GetSourceCode(w http.ResponseWriter, r *http.Request) {
 
 	// Build response
 	response := models.SourceCodeResponse{
-		SpanName:     spanName,
+		SpanName:     req.SpanName,
 		FilePath:     mapping.FilePath,
 		FunctionName: mapping.FunctionName,
 		StartLine:    mapping.StartLine,
