@@ -1,5 +1,11 @@
 # Tempo OTLP Trace Demo
 
+[![GitHub](https://img.shields.io/badge/GitHub-tempo--otlp--trace--demo-blue?logo=github)](https://github.com/kokjohn0824/tempo-otlp-trace-demo)
+[![Go Version](https://img.shields.io/badge/Go-1.24+-00ADD8?logo=go)](https://go.dev/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)](https://www.docker.com/)
+[![Swagger](https://img.shields.io/badge/API-Swagger-85EA2D?logo=swagger)](http://localhost:8080/swagger/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 一個完整的 OpenTelemetry 追蹤示範專案，用於產生真實世界的 trace 資料並發送到 Grafana Tempo。
 
 ## 📚 文件導覽
