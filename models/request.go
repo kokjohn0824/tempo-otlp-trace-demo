@@ -34,11 +34,11 @@ type ReportRequest struct {
 
 // ReportResponse represents a report generation response
 type ReportResponse struct {
-	ReportID  string `json:"report_id"`
-	Status    string `json:"status"`
-	URL       string `json:"url"`
-	Message   string `json:"message"`
-	Duration  string `json:"duration"`
+	ReportID string `json:"report_id"`
+	Status   string `json:"status"`
+	URL      string `json:"url"`
+	Message  string `json:"message"`
+	Duration string `json:"duration"`
 }
 
 // SearchRequest represents a search request
@@ -71,19 +71,19 @@ type BatchRequest struct {
 
 // BatchResponse represents batch processing response
 type BatchResponse struct {
-	BatchID       string   `json:"batch_id"`
-	ProcessedCount int     `json:"processed_count"`
-	FailedCount   int      `json:"failed_count"`
-	Status        string   `json:"status"`
-	Results       []string `json:"results"`
+	BatchID        string   `json:"batch_id"`
+	ProcessedCount int      `json:"processed_count"`
+	FailedCount    int      `json:"failed_count"`
+	Status         string   `json:"status"`
+	Results        []string `json:"results"`
 }
 
 // SimulateRequest represents a custom simulation request
 type SimulateRequest struct {
-	Depth     int     `json:"depth"`
-	Breadth   int     `json:"breadth"`
-	Duration  int     `json:"duration"`
-	Variance  float64 `json:"variance"`
+	Depth    int     `json:"depth"`
+	Breadth  int     `json:"breadth"`
+	Duration int     `json:"duration"`
+	Variance float64 `json:"variance"`
 }
 
 // SimulateResponse represents simulation response
@@ -99,4 +99,36 @@ type ErrorResponse struct {
 	Error   string `json:"error"`
 	Code    int    `json:"code"`
 	Message string `json:"message"`
+}
+
+// SourceCodeMapping represents the mapping between span operation name and source code location
+type SourceCodeMapping struct {
+	SpanName     string `json:"span_name"`     // e.g., "POST /api/order/create"
+	FilePath     string `json:"file_path"`     // e.g., "handlers/order.go"
+	FunctionName string `json:"function_name"` // e.g., "CreateOrder"
+	StartLine    int    `json:"start_line"`    // Starting line number
+	EndLine      int    `json:"end_line"`      // Ending line number
+	Description  string `json:"description"`   // Optional description
+}
+
+// SourceCodeResponse represents the response containing source code and metadata
+type SourceCodeResponse struct {
+	SpanName     string `json:"span_name"`
+	FilePath     string `json:"file_path"`
+	FunctionName string `json:"function_name"`
+	StartLine    int    `json:"start_line"`
+	EndLine      int    `json:"end_line"`
+	SourceCode   string `json:"source_code"`
+}
+
+// MappingRequest represents a request to add/update source code mapping
+type MappingRequest struct {
+	Mappings []SourceCodeMapping `json:"mappings"`
+}
+
+// MappingResponse represents the response for mapping operations
+type MappingResponse struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Count   int    `json:"count"`
 }
