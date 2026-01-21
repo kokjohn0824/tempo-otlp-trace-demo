@@ -35,3 +35,12 @@ tempo-otlp-trace-demo
 # Docker volumes
 data/
 tempo-data/
+
+# Build artifacts
+bin/
+coverage.out
+coverage.html
+
+# Makefile artifacts
+*.test
+*.prof

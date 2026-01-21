@@ -103,22 +103,22 @@ type ErrorResponse struct {
 
 // SourceCodeMapping represents the mapping between span operation name and source code location
 type SourceCodeMapping struct {
-	SpanName     string `json:"span_name"`     // e.g., "POST /api/order/create"
-	FilePath     string `json:"file_path"`     // e.g., "handlers/order.go"
-	FunctionName string `json:"function_name"` // e.g., "CreateOrder"
-	StartLine    int    `json:"start_line"`    // Starting line number
-	EndLine      int    `json:"end_line"`      // Ending line number
-	Description  string `json:"description"`   // Optional description
+	SpanName     string `json:"span_name" example:"POST /api/order/create"`     // e.g., "POST /api/order/create"
+	FilePath     string `json:"file_path" example:"handlers/order.go"`          // e.g., "handlers/order.go"
+	FunctionName string `json:"function_name" example:"CreateOrder"`            // e.g., "CreateOrder"
+	StartLine    int    `json:"start_line" example:"21"`                        // Starting line number
+	EndLine      int    `json:"end_line" example:"85"`                          // Ending line number
+	Description  string `json:"description" example:"Handles order creation"`   // Optional description
 }
 
 // SourceCodeResponse represents the response containing source code and metadata
 type SourceCodeResponse struct {
-	SpanName     string `json:"span_name"`
-	FilePath     string `json:"file_path"`
-	FunctionName string `json:"function_name"`
-	StartLine    int    `json:"start_line"`
-	EndLine      int    `json:"end_line"`
-	SourceCode   string `json:"source_code"`
+	SpanName     string `json:"span_name" example:"POST /api/order/create"`
+	FilePath     string `json:"file_path" example:"handlers/order.go"`
+	FunctionName string `json:"function_name" example:"CreateOrder"`
+	StartLine    int    `json:"start_line" example:"21"`
+	EndLine      int    `json:"end_line" example:"85"`
+	SourceCode   string `json:"source_code" example:"func CreateOrder(w http.ResponseWriter, r *http.Request) {...}"`
 }
 
 // MappingRequest represents a request to add/update source code mapping
@@ -128,7 +128,7 @@ type MappingRequest struct {
 
 // MappingResponse represents the response for mapping operations
 type MappingResponse struct {
-	Status  string `json:"status"`
-	Message string `json:"message"`
-	Count   int    `json:"count"`
+	Status  string `json:"status" example:"success"`
+	Message string `json:"message" example:"Mappings updated successfully"`
+	Count   int    `json:"count" example:"5"`
 }

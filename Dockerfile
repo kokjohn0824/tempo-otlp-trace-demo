@@ -23,6 +23,10 @@ WORKDIR /root/
 # Copy the binary from builder
 COPY --from=builder /app/trace-demo-app .
 
+# Copy source code mappings and handler files
+COPY --from=builder /app/source_code_mappings.json .
+COPY --from=builder /app/handlers ./handlers
+
 EXPOSE 8080
 
 CMD ["./trace-demo-app"]

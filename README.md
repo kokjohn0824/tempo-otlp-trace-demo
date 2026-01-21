@@ -2,6 +2,22 @@
 
 一個完整的 OpenTelemetry 追蹤示範專案，用於產生真實世界的 trace 資料並發送到 Grafana Tempo。
 
+## 📚 文件導覽
+
+### 核心文件
+- **[README.md](README.md)** - 專案說明和使用指南（本文件）
+- **[INSTALLATION.md](INSTALLATION.md)** - 詳細的安裝和設定指南
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - 貢獻指南
+- **[CHANGELOG.md](CHANGELOG.md)** - 變更日誌
+
+### Makefile 相關
+- **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - Makefile 快速參考
+- **[MAKEFILE_GUIDE.md](MAKEFILE_GUIDE.md)** - Makefile 詳細使用指南
+
+### 原始碼分析功能
+- **[SOURCE_CODE_API.md](SOURCE_CODE_API.md)** - 原始碼分析 API 文件
+- **[USAGE_EXAMPLE.md](USAGE_EXAMPLE.md)** - 原始碼分析 API 使用範例
+
 ## 專案目標
 
 建立一個最小化的 trace 發送系統，確保真實的 traces 能夠正確地送到 Tempo，並且包含正確的 parent/child 關係和 durations，以支援後續的「最長 span 分析」邏輯。
@@ -113,6 +129,61 @@ curl -X POST http://localhost:8080/api/batch/process \
 curl "http://localhost:8080/api/simulate?depth=5&breadth=3&duration=100&variance=0.5"
 ```
 
+## 🆕 原始碼分析 API
+
+這個專案現在包含了強大的原始碼分析功能，可以根據 Tempo 中的 span 資訊來獲取對應的原始碼，以供 LLM 分析效能問題。
+
+### 主要功能
+
+1. **自動原始碼映射**: 根據 span name 自動找到對應的原始碼位置
+2. **完整的 span 資訊**: 包含 duration、attributes、child spans 等
+3. **LLM 友善的輸出**: JSON 格式，可直接提供給 LLM 分析
+4. **映射表管理**: 支援新增、更新、刪除和重新載入映射
+
+### 新增的 API Endpoints
+
+#### 1. 獲取原始碼
+```bash
+GET /api/source-code?span_id={spanId}&trace_id={traceId}
+```
+根據 span ID 和 trace ID 獲取對應的原始碼及相關資訊。
+
+#### 2. 管理映射表
+```bash
+GET /api/mappings              # 查詢所有映射
+POST /api/mappings             # 新增/更新映射
+DELETE /api/mappings?span_name={name}  # 刪除映射
+POST /api/mappings/reload      # 重新載入映射
+```
+
+### 快速使用範例
+
+```bash
+# 1. 產生一個 trace
+curl -X POST http://localhost:8080/api/order/create \
+  -H "Content-Type: application/json" \
+  -d '{"user_id":"user_123","product_id":"prod_456","quantity":2,"price":99.99}'
+
+# 2. 在 Grafana 中找到 trace ID 和 span ID
+
+# 3. 獲取原始碼和分析資料
+curl "http://localhost:8080/api/source-code?span_id=YOUR_SPAN_ID&trace_id=YOUR_TRACE_ID" | jq .
+
+# 4. 將結果提供給 LLM 分析效能瓶頸
+```
+
+### 詳細文件
+
+- **[SOURCE_CODE_API.md](SOURCE_CODE_API.md)** - 完整的 API 文件和參考
+- **[USAGE_EXAMPLE.md](USAGE_EXAMPLE.md)** - 詳細的使用範例和場景
+
+### 測試原始碼分析 API
+
+```bash
+# 執行測試腳本
+./scripts/test-source-code-api.sh
+```
+
 ## 快速開始
 
 ### 前置需求
@@ -120,8 +191,70 @@ curl "http://localhost:8080/api/simulate?depth=5&breadth=3&duration=100&variance
 - Docker 和 Docker Compose
 - Go 1.21+ (如果要在本地執行)
 - curl 和 jq (用於測試腳本)
+- Make (用於執行 Makefile 指令)
 
-### 啟動服務
+### 使用 Makefile (推薦)
+
+本專案提供了完整的 Makefile 來簡化開發、測試和部署流程。
+
+#### 查看所有可用指令
+
+```bash
+make help
+```
+
+#### 常用指令
+
+**啟動所有服務**:
+```bash
+make up
+```
+
+**檢查服務健康狀態**:
+```bash
+make health
+```
+
+**執行 API 測試**:
+```bash
+make test-apis
+```
+
+**查看日誌**:
+```bash
+make logs          # 所有服務
+make logs-app      # 應用程式
+make logs-collector # OTel Collector
+make logs-tempo    # Tempo
+make logs-grafana  # Grafana
+```
+
+**停止服務**:
+```bash
+make down
+```
+
+**開發模式** (啟動基礎設施並在本地運行應用程式):
+```bash
+make dev
+```
+
+**建立和部署**:
+```bash
+make build              # 編譯應用程式
+make docker-build       # 建立 Docker 映像
+make deploy            # 建立並推送映像
+```
+
+**清理**:
+```bash
+make clean             # 清理編譯產物
+make clean-all         # 完全清理 (包含 Docker)
+```
+
+### 手動啟動 (不使用 Makefile)
+
+如果你偏好手動操作：
 
 1. **啟動所有服務**:
 ```bash
@@ -153,8 +286,13 @@ curl http://localhost:3200/ready
 
 ### 執行測試
 
-使用提供的測試腳本來產生各種 traces：
+**使用 Makefile (推薦)**:
+```bash
+make test-apis        # 完整測試
+make test-quick       # 快速測試 (減少等待時間)
+```
 
+**手動執行測試腳本**:
 ```bash
 ./scripts/test-apis.sh
 ```
@@ -178,9 +316,23 @@ curl http://localhost:3200/ready
 
 如果要在本地執行應用程式（不使用 Docker）：
 
+**使用 Makefile (推薦)**:
+```bash
+make dev
+```
+
+這個指令會自動：
+1. 啟動基礎設施 (OTel Collector, Tempo, Grafana)
+2. 編譯並執行應用程式
+3. 檢查服務健康狀態
+
+**手動執行**:
+
 1. **啟動基礎設施**（不含應用程式）:
 ```bash
-docker-compose up -d otel-collector tempo grafana
+docker-compose up -d otel-collector tempo-server grafana
+# 或使用 Makefile
+make infra-up
 ```
 
 2. **設定環境變數**:
@@ -193,6 +345,8 @@ export PORT=8080
 3. **執行應用程式**:
 ```bash
 go run main.go
+# 或使用 Makefile
+make run
 ```
 
 ## 專案結構
@@ -220,8 +374,7 @@ tempo-otlp-trace-demo/
 ├── grafana-datasources.yaml  # Grafana 資料源配置
 ├── go.mod                # Go 模組定義
 ├── go.sum                # Go 依賴校驗
-├── README.md             # 本文件
-└── PLAN.md               # 實作計劃
+└── README.md             # 本文件
 ```
 
 ## Span 屬性
@@ -303,12 +456,114 @@ curl "http://localhost:8080/api/simulate?depth=2&breadth=5&duration=100&variance
 
 ## 停止服務
 
+**使用 Makefile**:
+```bash
+make down              # 停止所有服務
+make down-volumes      # 停止並刪除 volumes（會提示確認）
+```
+
+**手動執行**:
 ```bash
 # 停止所有服務
 docker-compose down
 
 # 停止並刪除 volumes（清除所有資料）
 docker-compose down -v
+```
+
+## Makefile 指令參考
+
+### 開發相關
+
+| 指令 | 說明 |
+|------|------|
+| `make help` | 顯示所有可用指令 |
+| `make check-deps` | 檢查必要的依賴工具 |
+| `make install-deps` | 安裝 Go 依賴 |
+| `make fmt` | 格式化 Go 程式碼 |
+| `make vet` | 執行 Go vet 檢查 |
+| `make lint` | 執行 golangci-lint 檢查 |
+| `make build` | 編譯 Go 應用程式 (Linux) |
+| `make build-local` | 編譯本地版本 |
+| `make run` | 在本地執行應用程式 |
+| `make dev` | 開發模式 (啟動基礎設施並運行應用) |
+
+### Docker 相關
+
+| 指令 | 說明 |
+|------|------|
+| `make docker-build` | 建立 Docker 映像 |
+| `make docker-push` | 推送映像到 Registry |
+| `make up` | 啟動所有服務 |
+| `make down` | 停止所有服務 |
+| `make down-volumes` | 停止服務並刪除 volumes |
+| `make restart` | 重啟所有服務 |
+| `make infra-up` | 只啟動基礎設施 |
+
+### 日誌和監控
+
+| 指令 | 說明 |
+|------|------|
+| `make logs` | 查看所有服務日誌 |
+| `make logs-app` | 查看應用程式日誌 |
+| `make logs-collector` | 查看 OTel Collector 日誌 |
+| `make logs-tempo` | 查看 Tempo 日誌 |
+| `make logs-grafana` | 查看 Grafana 日誌 |
+| `make ps` | 查看服務狀態 |
+| `make health` | 檢查所有服務健康狀態 |
+
+### 測試相關
+
+| 指令 | 說明 |
+|------|------|
+| `make test` | 執行 Go 單元測試 |
+| `make test-coverage` | 執行測試並生成覆蓋率報告 |
+| `make test-apis` | 執行 API 測試腳本 |
+| `make test-quick` | 快速 API 測試 |
+| `make bench` | 執行效能測試 |
+
+### 清理和維護
+
+| 指令 | 說明 |
+|------|------|
+| `make clean` | 清理編譯產物 |
+| `make clean-all` | 完全清理 (包含 Docker) |
+| `make tidy` | 整理 Go 依賴 |
+
+### CI/CD
+
+| 指令 | 說明 |
+|------|------|
+| `make ci` | CI 流程 (格式化、檢查、測試、建立) |
+| `make deploy` | 部署 (建立並推送映像) |
+| `make all` | 完整建立流程 |
+
+### 其他
+
+| 指令 | 說明 |
+|------|------|
+| `make open-grafana` | 在瀏覽器開啟 Grafana |
+| `make open-app` | 在瀏覽器開啟應用程式 |
+
+### 環境變數
+
+Makefile 支援以下環境變數：
+
+- `DOCKER_REGISTRY`: Docker Registry 位址 (用於推送映像)
+- `DOCKER_TAG`: Docker 映像標籤 (預設: `latest`)
+- `BASE_URL`: API 測試的基礎 URL (預設: `http://localhost:8080`)
+- `PORT`: 應用程式 port (預設: `8080`)
+
+**範例**:
+```bash
+# 建立並推送映像到自訂 Registry
+make deploy DOCKER_REGISTRY=myregistry.com DOCKER_TAG=v1.0.0
+
+# 使用自訂 port 執行應用程式
+make run PORT=9090
+
+# 測試遠端服務
+make test-apis BASE_URL=http://production-server:8080
 ```
 
 ## 貢獻

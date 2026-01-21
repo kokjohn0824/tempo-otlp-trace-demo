@@ -1,0 +1,349 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API for generating traces and retrieving source code mappings for performance analysis",
+        "title": "Tempo OTLP Trace Demo API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/api/mappings": {
+            "get": {
+                "description": "Returns all configured source code mappings",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mappings"
+                ],
+                "summary": "Get all source code mappings",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.MappingRequest"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Updates or adds new source code mappings",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mappings"
+                ],
+                "summary": "Update source code mappings",
+                "parameters": [
+                    {
+                        "description": "Mappings to update",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.MappingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.MappingResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a specific source code mapping by span name",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mappings"
+                ],
+                "summary": "Delete a source code mapping",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Span name to delete",
+                        "name": "span_name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.MappingResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Missing parameter",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Mapping not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/mappings/reload": {
+            "post": {
+                "description": "Reloads source code mappings from the configuration file",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mappings"
+                ],
+                "summary": "Reload mappings from file",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.MappingResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to reload",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/source-code": {
+            "post": {
+                "description": "Retrieves the source code associated with a specific span name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Source Code"
+                ],
+                "summary": "Get source code for a span",
+                "parameters": [
+                    {
+                        "description": "Span name to query",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SourceCodeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SourceCodeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Mapping not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/span-names": {
+            "get": {
+                "description": "Returns a list of all span names that have source code mappings",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Source Code"
+                ],
+                "summary": "Get all available span names",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SpanNamesResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "handlers.SourceCodeRequest": {
+            "type": "object",
+            "properties": {
+                "spanName": {
+                    "type": "string",
+                    "example": "POST /api/order/create"
+                }
+            }
+        },
+        "handlers.SpanNameInfo": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "example": "Handles order creation with comprehensive tracing"
+                },
+                "end_line": {
+                    "type": "integer",
+                    "example": 85
+                },
+                "file_path": {
+                    "type": "string",
+                    "example": "handlers/order.go"
+                },
+                "function_name": {
+                    "type": "string",
+                    "example": "CreateOrder"
+                },
+                "span_name": {
+                    "type": "string",
+                    "example": "POST /api/order/create"
+                },
+                "start_line": {
+                    "type": "integer",
+                    "example": 21
+                }
+            }
+        },
+        "handlers.SpanNamesResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer",
+                    "example": 42
+                },
+                "span_names": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handlers.SpanNameInfo"
+                    }
+                }
+            }
+        },
+        "models.MappingRequest": {
+            "type": "object",
+            "properties": {
+                "mappings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.SourceCodeMapping"
+                    }
+                }
+            }
+        },
+        "models.MappingResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer",
+                    "example": 5
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Mappings updated successfully"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "models.SourceCodeMapping": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "Optional description",
+                    "type": "string",
+                    "example": "Handles order creation"
+                },
+                "end_line": {
+                    "description": "Ending line number",
+                    "type": "integer",
+                    "example": 85
+                },
+                "file_path": {
+                    "description": "e.g., \"handlers/order.go\"",
+                    "type": "string",
+                    "example": "handlers/order.go"
+                },
+                "function_name": {
+                    "description": "e.g., \"CreateOrder\"",
+                    "type": "string",
+                    "example": "CreateOrder"
+                },
+                "span_name": {
+                    "description": "e.g., \"POST /api/order/create\"",
+                    "type": "string",
+                    "example": "POST /api/order/create"
+                },
+                "start_line": {
+                    "description": "Starting line number",
+                    "type": "integer",
+                    "example": 21
+                }
+            }
+        },
+        "models.SourceCodeResponse": {
+            "type": "object",
+            "properties": {
+                "end_line": {
+                    "type": "integer",
+                    "example": 85
+                },
+                "file_path": {
+                    "type": "string",
+                    "example": "handlers/order.go"
+                },
+                "function_name": {
+                    "type": "string",
+                    "example": "CreateOrder"
+                },
+                "source_code": {
+                    "type": "string",
+                    "example": "func CreateOrder(w http.ResponseWriter, r *http.Request) {...}"
+                },
+                "span_name": {
+                    "type": "string",
+                    "example": "POST /api/order/create"
+                },
+                "start_line": {
+                    "type": "integer",
+                    "example": 21
+                }
+            }
+        }
+    }
+}

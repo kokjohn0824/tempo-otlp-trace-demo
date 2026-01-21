@@ -14,7 +14,16 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
+
+	httpSwagger "github.com/swaggo/http-swagger"
+	_ "tempo-otlp-trace-demo/docs"
 )
+
+// @title Tempo OTLP Trace Demo API
+// @version 1.0
+// @description API for generating traces and retrieving source code mappings for performance analysis
+// @host localhost:8080
+// @BasePath /
 
 func main() {
 	log.Println("Starting Tempo OTLP Trace Demo Service...")
@@ -46,6 +55,28 @@ func main() {
 	mux.HandleFunc("/api/search", handlers.Search)
 	mux.HandleFunc("/api/batch/process", handlers.ProcessBatch)
 	mux.HandleFunc("/api/simulate", handlers.Simulate)
+
+	// Source code analysis endpoints
+	mux.HandleFunc("/api/source-code", handlers.GetSourceCode)
+	mux.HandleFunc("/api/span-names", handlers.GetSpanNames)
+	mux.HandleFunc("/api/mappings", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			handlers.GetMappings(w, r)
+		case http.MethodPost:
+			handlers.UpdateMappings(w, r)
+		case http.MethodDelete:
+			handlers.DeleteMapping(w, r)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+	mux.HandleFunc("/api/mappings/reload", handlers.ReloadMappings)
+
+	// Swagger UI endpoint
+	mux.HandleFunc("/swagger/", httpSwagger.Handler(
+		httpSwagger.URL("/swagger/doc.json"),
+	))
 
 	// Health check endpoint
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
@@ -113,6 +144,45 @@ func main() {
     <div class="endpoint">
         <span class="method">GET</span> <span class="path">/health</span>
         <div class="description">Health check</div>
+    </div>
+    
+    <h2>Source Code Analysis Endpoints:</h2>
+    
+    <div class="endpoint">
+        <span class="method">POST</span> <span class="path">/api/source-code</span>
+        <div class="description">Get source code for a specific span (JSON body: {"spanName": "xxx"})</div>
+    </div>
+    
+    <div class="endpoint">
+        <span class="method">GET</span> <span class="path">/api/span-names</span>
+        <div class="description">Get all available span names with mappings</div>
+    </div>
+    
+    <div class="endpoint">
+        <span class="method">GET</span> <span class="path">/api/mappings</span>
+        <div class="description">Get all source code mappings</div>
+    </div>
+    
+    <div class="endpoint">
+        <span class="method">POST</span> <span class="path">/api/mappings</span>
+        <div class="description">Update source code mappings</div>
+    </div>
+    
+    <div class="endpoint">
+        <span class="method">DELETE</span> <span class="path">/api/mappings?span_name=xxx</span>
+        <div class="description">Delete a source code mapping</div>
+    </div>
+    
+    <div class="endpoint">
+        <span class="method">POST</span> <span class="path">/api/mappings/reload</span>
+        <div class="description">Reload mappings from file</div>
+    </div>
+    
+    <h2>API Documentation:</h2>
+    
+    <div class="endpoint">
+        <span class="method">GET</span> <span class="path">/swagger/</span>
+        <div class="description">Interactive Swagger UI for API testing</div>
     </div>
 </body>
 </html>

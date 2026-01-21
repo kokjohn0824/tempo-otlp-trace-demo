@@ -1,0 +1,239 @@
+basePath: /
+definitions:
+  handlers.SourceCodeRequest:
+    properties:
+      spanName:
+        example: POST /api/order/create
+        type: string
+    type: object
+  handlers.SpanNameInfo:
+    properties:
+      description:
+        example: Handles order creation with comprehensive tracing
+        type: string
+      end_line:
+        example: 85
+        type: integer
+      file_path:
+        example: handlers/order.go
+        type: string
+      function_name:
+        example: CreateOrder
+        type: string
+      span_name:
+        example: POST /api/order/create
+        type: string
+      start_line:
+        example: 21
+        type: integer
+    type: object
+  handlers.SpanNamesResponse:
+    properties:
+      count:
+        example: 42
+        type: integer
+      span_names:
+        items:
+          $ref: '#/definitions/handlers.SpanNameInfo'
+        type: array
+    type: object
+  models.MappingRequest:
+    properties:
+      mappings:
+        items:
+          $ref: '#/definitions/models.SourceCodeMapping'
+        type: array
+    type: object
+  models.MappingResponse:
+    properties:
+      count:
+        example: 5
+        type: integer
+      message:
+        example: Mappings updated successfully
+        type: string
+      status:
+        example: success
+        type: string
+    type: object
+  models.SourceCodeMapping:
+    properties:
+      description:
+        description: Optional description
+        example: Handles order creation
+        type: string
+      end_line:
+        description: Ending line number
+        example: 85
+        type: integer
+      file_path:
+        description: e.g., "handlers/order.go"
+        example: handlers/order.go
+        type: string
+      function_name:
+        description: e.g., "CreateOrder"
+        example: CreateOrder
+        type: string
+      span_name:
+        description: e.g., "POST /api/order/create"
+        example: POST /api/order/create
+        type: string
+      start_line:
+        description: Starting line number
+        example: 21
+        type: integer
+    type: object
+  models.SourceCodeResponse:
+    properties:
+      end_line:
+        example: 85
+        type: integer
+      file_path:
+        example: handlers/order.go
+        type: string
+      function_name:
+        example: CreateOrder
+        type: string
+      source_code:
+        example: func CreateOrder(w http.ResponseWriter, r *http.Request) {...}
+        type: string
+      span_name:
+        example: POST /api/order/create
+        type: string
+      start_line:
+        example: 21
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API for generating traces and retrieving source code mappings for performance
+    analysis
+  title: Tempo OTLP Trace Demo API
+  version: "1.0"
+paths:
+  /api/mappings:
+    delete:
+      description: Deletes a specific source code mapping by span name
+      parameters:
+      - description: Span name to delete
+        in: query
+        name: span_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MappingResponse'
+        "400":
+          description: Missing parameter
+          schema:
+            type: string
+        "404":
+          description: Mapping not found
+          schema:
+            type: string
+      summary: Delete a source code mapping
+      tags:
+      - Mappings
+    get:
+      description: Returns all configured source code mappings
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MappingRequest'
+      summary: Get all source code mappings
+      tags:
+      - Mappings
+    post:
+      consumes:
+      - application/json
+      description: Updates or adds new source code mappings
+      parameters:
+      - description: Mappings to update
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.MappingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MappingResponse'
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+      summary: Update source code mappings
+      tags:
+      - Mappings
+  /api/mappings/reload:
+    post:
+      description: Reloads source code mappings from the configuration file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MappingResponse'
+        "500":
+          description: Failed to reload
+          schema:
+            type: string
+      summary: Reload mappings from file
+      tags:
+      - Mappings
+  /api/source-code:
+    post:
+      consumes:
+      - application/json
+      description: Retrieves the source code associated with a specific span name
+      parameters:
+      - description: Span name to query
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.SourceCodeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SourceCodeResponse'
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "404":
+          description: Mapping not found
+          schema:
+            type: string
+      summary: Get source code for a span
+      tags:
+      - Source Code
+  /api/span-names:
+    get:
+      description: Returns a list of all span names that have source code mappings
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.SpanNamesResponse'
+      summary: Get all available span names
+      tags:
+      - Source Code
+swagger: "2.0"

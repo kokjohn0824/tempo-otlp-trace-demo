@@ -60,12 +60,14 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
       - OTEL_SERVICE_NAME=trace-demo-service
       - PORT=8080
+      - TEMPO_URL=http://tempo-server:3200
     ports:
       - "8080:8080"
     networks:
       - tempo-network
     depends_on:
       - otel-collector
+      - tempo-server
 
 networks:
   tempo-network:

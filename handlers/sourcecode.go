@@ -92,11 +92,20 @@ func SaveMappings() error {
 
 // SourceCodeRequest represents the request body for source code query
 type SourceCodeRequest struct {
-	SpanName string `json:"spanName"`
+	SpanName string `json:"spanName" example:"POST /api/order/create"`
 }
 
 // GetSourceCode handles requests to retrieve source code for a span
-// POST /api/source-code with JSON body: {"spanName": "xxx"}
+// @Summary Get source code for a span
+// @Description Retrieves the source code associated with a specific span name
+// @Tags Source Code
+// @Accept json
+// @Produce json
+// @Param request body SourceCodeRequest true "Span name to query"
+// @Success 200 {object} models.SourceCodeResponse
+// @Failure 400 {string} string "Invalid request"
+// @Failure 404 {string} string "Mapping not found"
+// @Router /api/source-code [post]
 func GetSourceCode(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx, span := tracer.Start(ctx, "POST /api/source-code",
@@ -206,7 +215,15 @@ func readSourceCode(filePath string, startLine, endLine int) (string, error) {
 }
 
 // UpdateMappings handles requests to update source code mappings
-// POST /api/mappings
+// @Summary Update source code mappings
+// @Description Updates or adds new source code mappings
+// @Tags Mappings
+// @Accept json
+// @Produce json
+// @Param request body models.MappingRequest true "Mappings to update"
+// @Success 200 {object} models.MappingResponse
+// @Failure 400 {string} string "Invalid request"
+// @Router /api/mappings [post]
 func UpdateMappings(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx, span := tracer.Start(ctx, "POST /api/mappings",
@@ -263,7 +280,12 @@ func UpdateMappings(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetMappings handles requests to retrieve all source code mappings
-// GET /api/mappings
+// @Summary Get all source code mappings
+// @Description Returns all configured source code mappings
+// @Tags Mappings
+// @Produce json
+// @Success 200 {object} models.MappingRequest
+// @Router /api/mappings [get]
 func GetMappings(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx, span := tracer.Start(ctx, "GET /api/mappings",
@@ -295,7 +317,15 @@ func GetMappings(w http.ResponseWriter, r *http.Request) {
 }
 
 // DeleteMapping handles requests to delete a source code mapping
-// DELETE /api/mappings?span_name=xxx
+// @Summary Delete a source code mapping
+// @Description Deletes a specific source code mapping by span name
+// @Tags Mappings
+// @Produce json
+// @Param span_name query string true "Span name to delete"
+// @Success 200 {object} models.MappingResponse
+// @Failure 400 {string} string "Missing parameter"
+// @Failure 404 {string} string "Mapping not found"
+// @Router /api/mappings [delete]
 func DeleteMapping(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx, span := tracer.Start(ctx, "DELETE /api/mappings",
@@ -350,7 +380,13 @@ func DeleteMapping(w http.ResponseWriter, r *http.Request) {
 }
 
 // ReloadMappings handles requests to reload mappings from file
-// POST /api/mappings/reload
+// @Summary Reload mappings from file
+// @Description Reloads source code mappings from the configuration file
+// @Tags Mappings
+// @Produce json
+// @Success 200 {object} models.MappingResponse
+// @Failure 500 {string} string "Failed to reload"
+// @Router /api/mappings/reload [post]
 func ReloadMappings(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx, span := tracer.Start(ctx, "POST /api/mappings/reload",
