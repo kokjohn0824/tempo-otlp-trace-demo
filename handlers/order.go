@@ -43,6 +43,7 @@ func CreateOrder(w http.ResponseWriter, r *http.Request) {
 		attribute.String("user.id", req.UserID),
 		attribute.String("product.id", req.ProductID),
 		attribute.Int("order.quantity", req.Quantity),
+		attribute.Bool("simulate.slow", req.Sleep),
 	)
 
 	// Step 1: Validate order
@@ -55,7 +56,8 @@ func CreateOrder(w http.ResponseWriter, r *http.Request) {
 	totalCost := calculatePrice(ctx, req.Price, req.Quantity)
 
 	// Step 4: Process payment (with nested spans)
-	processPayment(ctx, req.UserID, totalCost)
+	// If sleep=true, simulate slow payment processing (5 seconds delay)
+	processPayment(ctx, req.UserID, totalCost, req.Sleep)
 
 	// Step 5: Create shipment
 	createShipment(ctx, req.UserID, req.ProductID)
@@ -133,7 +135,7 @@ func calculatePrice(ctx context.Context, price float64, quantity int) float64 {
 	return totalCost
 }
 
-func processPayment(ctx context.Context, userID string, amount float64) {
+func processPayment(ctx context.Context, userID string, amount float64, simulateSlow bool) {
 	ctx, span := tracer.Start(ctx, "processPayment")
 	defer span.End()
 
@@ -141,7 +143,14 @@ func processPayment(ctx context.Context, userID string, amount float64) {
 		attribute.String("user.id", userID),
 		attribute.Float64("payment.amount", amount),
 		attribute.String("operation.type", "payment"),
+		attribute.Bool("simulate.slow", simulateSlow),
 	)
+
+	// If simulateSlow is true, add 5 seconds delay to simulate anomaly
+	if simulateSlow {
+		span.SetAttributes(attribute.String("slow.reason", "simulated_delay"))
+		time.Sleep(5 * time.Second)
+	}
 
 	// Nested: Call payment gateway
 	callPaymentGateway(ctx, amount)

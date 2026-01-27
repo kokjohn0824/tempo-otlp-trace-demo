@@ -6,6 +6,7 @@ type OrderRequest struct {
 	ProductID string  `json:"product_id"`
 	Quantity  int     `json:"quantity"`
 	Price     float64 `json:"price"`
+	Sleep     bool    `json:"sleep,omitempty"` // If true, simulate slow operation by adding 5s delay to processPayment
 }
 
 // OrderResponse represents an order creation response

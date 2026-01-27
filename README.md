@@ -47,11 +47,20 @@ Go Application → OTLP (gRPC) → OpenTelemetry Collector → Tempo → Grafana
 
 ### 1. `/api/order/create` - 訂單建立
 **方法**: POST  
-**預期時長**: 600-1500ms  
+**預期時長**: 600-1500ms (正常) / 5600-6500ms (sleep=true)  
 **Span 數量**: 10-12 個  
 **說明**: 模擬電商訂單建立流程，包含驗證、庫存檢查、付款處理、出貨和通知
 
-**範例請求**:
+**參數說明**:
+| 參數 | 類型 | 必填 | 說明 |
+|------|------|------|------|
+| user_id | string | 是 | 使用者 ID |
+| product_id | string | 是 | 產品 ID |
+| quantity | int | 是 | 購買數量 |
+| price | float | 是 | 單價 |
+| sleep | bool | 否 | 若為 true，則在 processPayment 子操作中額外等待 5 秒，用於模擬異常延遲 |
+
+**範例請求 (正常)**:
 ```bash
 curl -X POST http://localhost:8080/api/order/create \
   -H "Content-Type: application/json" \
@@ -60,6 +69,19 @@ curl -X POST http://localhost:8080/api/order/create \
     "product_id": "prod_98765",
     "quantity": 2,
     "price": 299.99
+  }'
+```
+
+**範例請求 (模擬異常延遲)**:
+```bash
+curl -X POST http://localhost:8080/api/order/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id": "user_12345",
+    "product_id": "prod_98765",
+    "quantity": 2,
+    "price": 299.99,
+    "sleep": true
   }'
 ```
 
