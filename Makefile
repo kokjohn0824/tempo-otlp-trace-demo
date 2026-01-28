@@ -7,15 +7,15 @@ DOCKER_IMAGE := $(APP_NAME)
 DOCKER_TAG := latest
 DOCKER_REGISTRY ?= 
 GO_FILES := $(shell find . -type f -name '*.go' -not -path "./vendor/*")
-BASE_URL ?= http://localhost:8080
-PORT ?= 8080
+BASE_URL ?= http://localhost:3201
+PORT ?= 3202
 
 # Remote deployment settings
 REMOTE_HOST ?= 192.168.4.208
 REMOTE_USER ?= root
-REMOTE_PATH ?= /root/trace-demo
+REMOTE_PATH ?= /root/test
 REMOTE_IMAGE_PATH ?= $(REMOTE_PATH)/images
-REMOTE_COMPOSE_DIR ?= $(REMOTE_PATH)
+REMOTE_COMPOSE_DIR ?= $(REMOTE_PATH)/trace-demo
 REMOTE_SERVICE_NAME ?= trace-demo-app
 ARCH ?= amd64
 PLATFORM ?= linux/$(ARCH)
@@ -374,7 +374,7 @@ deploy-full: deploy-image deploy-compose deploy-mappings
 	@echo "$(YELLOW)等待服務啟動...$(NC)"
 	@sleep 10
 	@echo "$(YELLOW)檢查服務健康狀態...$(NC)"
-	@ssh $(REMOTE_USER)@$(REMOTE_HOST) "curl -s http://localhost:8080/health" && echo "$(GREEN)✓ 服務正常運作！$(NC)" || echo "$(RED)⚠ 服務健康檢查失敗$(NC)"
+	@ssh $(REMOTE_USER)@$(REMOTE_HOST) "curl -s http://localhost:3202/health" && echo "$(GREEN)✓ 服務正常運作！$(NC)" || echo "$(RED)⚠ 服務健康檢查失敗$(NC)"
 	@echo ""
 	@echo "$(GREEN)✓ 完整部署成功完成！$(NC)"
 	@echo "  - 主機: $(REMOTE_USER)@$(REMOTE_HOST)"
