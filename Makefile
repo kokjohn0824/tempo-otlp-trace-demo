@@ -349,7 +349,7 @@ deploy-compose:
 	@echo "$(YELLOW)建立遠端目錄...$(NC)"
 	@ssh $(REMOTE_USER)@$(REMOTE_HOST) "mkdir -p $(REMOTE_COMPOSE_DIR)"
 	@echo "$(YELLOW)上傳 docker-compose.yml...$(NC)"
-	@echo "put docker-compose.yml $(REMOTE_COMPOSE_DIR)/" | sftp $(REMOTE_USER)@$(REMOTE_HOST)
+	@echo "put docker-compose-deploy.yml $(REMOTE_COMPOSE_DIR)/docker-compose.yml" | sftp $(REMOTE_USER)@$(REMOTE_HOST)
 	@echo "$(YELLOW)上傳配置檔案...$(NC)"
 	@ssh $(REMOTE_USER)@$(REMOTE_HOST) "mkdir -p $(REMOTE_COMPOSE_DIR)/configs"
 	@echo "put otel-collector.yaml $(REMOTE_COMPOSE_DIR)/" | sftp $(REMOTE_USER)@$(REMOTE_HOST) || true

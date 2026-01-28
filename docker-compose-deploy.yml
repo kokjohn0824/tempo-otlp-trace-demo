@@ -52,9 +52,7 @@ services:
 
   # Demo Application
   trace-demo-app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: trace-demo-app:amd64
     container_name: trace-demo-app
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
