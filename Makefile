@@ -326,9 +326,9 @@ all: clean install-deps test build docker-build
 ## image-save: 建立並儲存 Docker image 為 tar 檔案
 image-save:
 	@echo "$(BLUE)建立 Docker image for $(PLATFORM)...$(NC)"
-	docker buildx build --platform=$(PLATFORM) --load -t $(DOCKER_IMAGE):$(ARCH) .
+	docker buildx build --platform=$(PLATFORM) --load -t $(DOCKER_IMAGE):latest .
 	@echo "$(BLUE)儲存 Docker image 為 tar 檔案...$(NC)"
-	docker save $(DOCKER_IMAGE):$(ARCH) -o $(DOCKER_IMAGE)-$(ARCH).tar
+	docker save $(DOCKER_IMAGE):latest -o $(DOCKER_IMAGE)-$(ARCH).tar
 	@echo "$(GREEN)✓ Image 已儲存: $(DOCKER_IMAGE)-$(ARCH).tar$(NC)"
 
 ## deploy-image: 建立、儲存並部署 Docker image 到遠端伺服器

@@ -33,22 +33,22 @@ services:
       - tempo-network
 
   # Grafana
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    environment:
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-      - GF_AUTH_DISABLE_LOGIN_FORM=true
-    volumes:
-      - grafana-data:/var/lib/grafana
-      - ./grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
-    ports:
-      - "3000:3000"
-    networks:
-      - tempo-network
-    depends_on:
-      - tempo-server
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   container_name: grafana
+  #   environment:
+  #     - GF_AUTH_ANONYMOUS_ENABLED=true
+  #     - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+  #     - GF_AUTH_DISABLE_LOGIN_FORM=true
+  #   volumes:
+  #     - grafana-data:/var/lib/grafana
+  #     - ./grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+  #   ports:
+  #     - "3000:3000"
+  #   networks:
+  #     - tempo-network
+  #   depends_on:
+  #     - tempo-server
 
   # Demo Application
   trace-demo-app:
@@ -60,36 +60,17 @@ services:
       - PORT=8080
       - TEMPO_URL=http://tempo-server:3200
     ports:
-      - "8080:8080"
+      - "3201:8080"
     networks:
       - tempo-network
     depends_on:
       - otel-collector
       - tempo-server
 
-  # Trace Generator (持續產生 traces)
-  trace-generator:
-    build:
-      context: ./trace-generator
-      dockerfile: Dockerfile
-    container_name: trace-generator
-    environment:
-      - TARGET_URL=http://trace-demo-app:8080
-      - INTERVAL_SECONDS=30
-      - LOG_PATH=/logs/trace-generator.log
-      - ENABLED_APIS=order,user,report,search,batch,simulate
-      - TIMEOUT_SECONDS=30
-    volumes:
-      - ./trace-generator/logs:/logs
-    networks:
-      - tempo-network
-    depends_on:
-      - trace-demo-app
-    restart: unless-stopped
-
 networks:
   tempo-network:
-    driver: bridge
+    external: true
+    name: Danova
 
 volumes:
   tempo-data:
