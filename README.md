@@ -10,19 +10,10 @@
 
 ## 📚 文件導覽
 
-### 核心文件
 - **[README.md](README.md)** - 專案說明和使用指南（本文件）
-- **[INSTALLATION.md](INSTALLATION.md)** - 詳細的安裝和設定指南
+- **[SOURCE_CODE_API.md](SOURCE_CODE_API.md)** - 原始碼分析 API 文件和使用範例
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - 貢獻指南
 - **[CHANGELOG.md](CHANGELOG.md)** - 變更日誌
-
-### Makefile 相關
-- **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - Makefile 快速參考
-- **[MAKEFILE_GUIDE.md](MAKEFILE_GUIDE.md)** - Makefile 詳細使用指南
-
-### 原始碼分析功能
-- **[SOURCE_CODE_API.md](SOURCE_CODE_API.md)** - 原始碼分析 API 文件
-- **[USAGE_EXAMPLE.md](USAGE_EXAMPLE.md)** - 原始碼分析 API 使用範例
 
 ## 專案目標
 
@@ -202,8 +193,7 @@ curl "http://localhost:8080/api/source-code?span_id=YOUR_SPAN_ID&trace_id=YOUR_T
 
 ### 詳細文件
 
-- **[SOURCE_CODE_API.md](SOURCE_CODE_API.md)** - 完整的 API 文件和參考
-- **[USAGE_EXAMPLE.md](USAGE_EXAMPLE.md)** - 詳細的使用範例和場景
+- **[SOURCE_CODE_API.md](SOURCE_CODE_API.md)** - 完整的 API 文件、參考和使用範例
 
 ### 測試原始碼分析 API
 

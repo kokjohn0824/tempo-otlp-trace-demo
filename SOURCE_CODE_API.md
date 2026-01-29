@@ -7,6 +7,19 @@
 1. **查詢原始碼**: 根據 span ID 和 trace ID 從 Tempo 查詢 span 資訊，並回傳對應的原始碼
 2. **管理映射表**: 維護 span name 與原始碼位置的對應關係
 3. **自動載入**: 系統啟動時自動載入映射表
+4. **Swagger UI**: 提供互動式 API 文檔和測試介面
+
+## Swagger UI
+
+訪問 Swagger UI：http://localhost:8080/swagger/
+
+```bash
+# 生成 Swagger 文檔
+make swagger
+
+# 在瀏覽器開啟
+make open-swagger
+```
 
 ## API Endpoints
 
@@ -430,6 +443,76 @@ curl -X POST http://localhost:8080/api/mappings/reload
 2. 確認檔案權限
 3. 驗證行號範圍是否有效
 
+## 使用範例
+
+### 完整流程：分析慢速 API
+
+#### 1. 產生測試訂單
+
+```bash
+curl -X POST http://localhost:8080/api/order/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id": "user_123",
+    "product_id": "product_456",
+    "quantity": 5,
+    "price": 199.99
+  }'
+```
+
+#### 2. 在 Grafana 找到 Trace
+
+1. 訪問 http://localhost:3000
+2. 進入 Explore → Tempo
+3. 搜尋 `service.name="trace-demo-service"`
+4. 找到 operation name 為 `POST /api/order/create` 的 trace
+5. 複製 **Trace ID** 和 **Span ID**
+
+#### 3. 獲取原始碼和分析資料
+
+```bash
+curl "http://localhost:8080/api/source-code?span_id=YOUR_SPAN_ID&trace_id=YOUR_TRACE_ID" | jq .
+```
+
+**回應範例：**
+```json
+{
+  "span_id": "1234567890abcdef",
+  "span_name": "POST /api/order/create",
+  "trace_id": "a1b2c3d4e5f6g7h8",
+  "duration": "1.20s",
+  "file_path": "handlers/order.go",
+  "function_name": "CreateOrder",
+  "source_code": "func CreateOrder(w http.ResponseWriter, r *http.Request) {...}",
+  "child_spans": [
+    {"span_name": "validateOrder", "duration": "52.3ms"},
+    {"span_name": "processPayment", "duration": "850.2ms"}
+  ]
+}
+```
+
+#### 4. 使用 LLM 分析
+
+將回應提供給 LLM：
+
+```
+這個 API 的 duration 是 1.2s，比預期長。以下是原始碼和子 span 資訊：
+[貼上 JSON]
+請分析可能導致 duration 較長的原因，並提供優化建議。
+```
+
+### 與 Tempo Latency Anomaly Service 整合
+
+```bash
+# 1. 從 Anomaly Service 獲取最慢的 span
+curl http://localhost:9090/v1/traces/{traceId}/longest-span
+
+# 2. 使用 span name 查詢原始碼
+curl -X POST http://localhost:8080/api/source-code \
+  -H "Content-Type: application/json" \
+  -d '{"spanName": "POST /api/order/create"}'
+```
+
 ## 總結
 
 這個 Source Code Analysis API 提供了一個強大的工具，讓您可以：
@@ -440,9 +523,3 @@ curl -X POST http://localhost:8080/api/mappings/reload
 - 維護程式碼與 tracing 的對應關係
 
 透過這個 API，您可以更有效地分析和優化應用程式的效能。
-
-## 📚 相關文件
-
-- **[USAGE_EXAMPLE.md](USAGE_EXAMPLE.md)** - 詳細使用範例
-- **[README.md](README.md)** - 專案說明
-- **[CHANGELOG.md](CHANGELOG.md)** - 變更日誌
