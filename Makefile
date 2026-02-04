@@ -1,5 +1,5 @@
 .PHONY: help build test clean run dev up down logs restart deploy test-apis fmt lint vet docker-build docker-push health check-deps install-deps \
-	image-save deploy-image deploy-compose deploy-mappings deploy-full
+	image-save deploy-image deploy-compose deploy-mappings deploy-full update-mappings
 
 # 變數定義
 APP_NAME := trace-demo-app
@@ -53,6 +53,12 @@ help:
 	@echo "  REMOTE_PATH=$(REMOTE_PATH)"
 	@echo "  ARCH=$(ARCH) (amd64 或 arm64)"
 	@echo ""
+
+## update-mappings: 重新掃描程式碼並更新 source_code_mappings.json
+update-mappings:
+	@echo "$(BLUE)更新原始碼映射...$(NC)"
+	go run scripts/update-source-mappings.go
+	@echo "$(GREEN)✓ 映射已更新$(NC)"
 
 ## check-deps: 檢查必要的依賴工具
 check-deps:
