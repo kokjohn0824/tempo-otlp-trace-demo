@@ -6,8 +6,10 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
-	"tempo-otlp-trace-demo/handlers"
+	docs "tempo-otlp-trace-demo/docs"
+	"tempo-otlp-trace-demo/handlers
 	"tempo-otlp-trace-demo/tracing"
 	"time"
 
@@ -16,17 +18,47 @@ import (
 	"go.opentelemetry.io/otel/trace"
 
 	httpSwagger "github.com/swaggo/http-swagger"
-	_ "tempo-otlp-trace-demo/docs"
 )
 
 // @title Tempo OTLP Trace Demo API
 // @version 1.0
 // @description API for generating traces and retrieving source code mappings for performance analysis
-// @host localhost:8080
+// @host 192.168.4.208:3202
 // @BasePath /
+
+func applySwaggerEnvOverrides() {
+	if docs.SwaggerInfo == nil {
+		return
+	}
+
+	if host := strings.TrimSpace(os.Getenv("SWAGGER_HOST")); host != "" {
+		docs.SwaggerInfo.Host = host
+	}
+
+	if basePath := strings.TrimSpace(os.Getenv("SWAGGER_BASE_PATH")); basePath != "" {
+		docs.SwaggerInfo.BasePath = basePath
+	}
+
+	if schemesRaw := strings.TrimSpace(os.Getenv("SWAGGER_SCHEMES")); schemesRaw != "" {
+		parts := strings.Split(schemesRaw, ",")
+		schemes := make([]string, 0, len(parts))
+		for _, p := range parts {
+			p = strings.TrimSpace(p)
+			if p == "" {
+				continue
+			}
+			schemes = append(schemes, p)
+		}
+		if len(schemes) > 0 {
+			docs.SwaggerInfo.Schemes = schemes
+		}
+	}
+}
 
 func main() {
 	log.Println("Starting Tempo OTLP Trace Demo Service...")
+
+	applySwaggerEnvOverrides()
 
 	// Initialize tracer
 	ctx := context.Background()
@@ -75,14 +107,11 @@ func main() {
 
 	// Swagger UI endpoint
 	mux.HandleFunc("/swagger/", httpSwagger.Handler(
-		httpSwagger.URL("/swagger/doc.json"),
+		httpSwagger.URL("doc.json"),
 	))
 
 	// Health check endpoint
-	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
-	})
+	mux.HandleFunc("/health", HealthCheck)
 
 	// Root endpoint with API documentation
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -238,6 +267,18 @@ func tracingMiddleware(tracer trace.Tracer, next http.Handler) http.Handler {
 		// Call next handler
 		next.ServeHTTP(w, r)
 	})
+}
+
+// HealthCheck handles health check requests
+// @Summary Health check
+// @Description Returns the health status of the service
+// @Tags Health
+// @Produce plain
+// @Success 200 {string} string "OK"
+// @Router /health [get]
+func HealthCheck(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("OK"))
 }
 
 func getEnv(key, defaultValue string) string {

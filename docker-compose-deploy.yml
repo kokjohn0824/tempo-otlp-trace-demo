@@ -52,13 +52,17 @@ services:
 
   # Demo Application
   trace-demo-app:
-    image: trace-demo-app:amd64
+    image: trace-demo-app:latest
     container_name: trace-demo-app
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
       - OTEL_SERVICE_NAME=trace-demo-service
       - PORT=8080
       - TEMPO_URL=http://tempo-server:3200
+      # Swagger (override via make deploy-full SWAGGER_HOST=...)
+      - SWAGGER_HOST=${SWAGGER_HOST}
+      - SWAGGER_SCHEMES=${SWAGGER_SCHEMES}
+      - SWAGGER_BASE_PATH=${SWAGGER_BASE_PATH}
     ports:
       - "3201:8080"
     networks:

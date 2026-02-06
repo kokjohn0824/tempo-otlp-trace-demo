@@ -12,13 +12,19 @@ PORT ?= 3202
 
 # Remote deployment settings
 REMOTE_HOST ?= 192.168.4.208
+REMOTE_PORT ?= 3201
 REMOTE_USER ?= root
-REMOTE_PATH ?= /root/test
+REMOTE_PATH ?= /root/test/
 REMOTE_IMAGE_PATH ?= $(REMOTE_PATH)/images
-REMOTE_COMPOSE_DIR ?= $(REMOTE_PATH)/trace-demo
+REMOTE_COMPOSE_DIR ?= $(REMOTE_PATH)/trace-demo-app
 REMOTE_SERVICE_NAME ?= trace-demo-app
 ARCH ?= amd64
 PLATFORM ?= linux/$(ARCH)
+
+# Swagger (override with: make deploy-full SWAGGER_HOST=...)
+SWAGGER_HOST ?= $(REMOTE_HOST):$(REMOTE_PORT)
+SWAGGER_SCHEMES ?= http,https
+SWAGGER_BASE_PATH ?= /
 
 # 顏色輸出
 BLUE := \033[0;34m
@@ -364,7 +370,7 @@ deploy-compose:
 	@echo "$(GREEN)✓ 配置部署完成！$(NC)"
 
 ## deploy-mappings: 部署 source_code_mappings.json 到遠端伺服器
-deploy-mappings:
+deploy-mappings: update-mappings
 	@echo "$(BLUE)部署 source code mappings 到 $(REMOTE_USER)@$(REMOTE_HOST)...$(NC)"
 	@echo "$(YELLOW)上傳 source_code_mappings.json...$(NC)"
 	@echo "put source_code_mappings.json $(REMOTE_COMPOSE_DIR)/" | sftp $(REMOTE_USER)@$(REMOTE_HOST)
@@ -376,7 +382,9 @@ deploy-mappings:
 ## deploy-full: 完整部署 (image + compose + mappings + restart)
 deploy-full: deploy-image deploy-compose deploy-mappings
 	@echo "$(BLUE)在遠端主機重啟服務...$(NC)"
-	@ssh $(REMOTE_USER)@$(REMOTE_HOST) "cd $(REMOTE_COMPOSE_DIR) && docker compose down && docker compose up -d"
+	@ssh $(REMOTE_USER)@$(REMOTE_HOST) "cd $(REMOTE_COMPOSE_DIR) && \
+SWAGGER_HOST='$(SWAGGER_HOST)' SWAGGER_SCHEMES='$(SWAGGER_SCHEMES)' SWAGGER_BASE_PATH='$(SWAGGER_BASE_PATH)' docker compose down && \
+SWAGGER_HOST='$(SWAGGER_HOST)' SWAGGER_SCHEMES='$(SWAGGER_SCHEMES)' SWAGGER_BASE_PATH='$(SWAGGER_BASE_PATH)' docker compose up -d"
 	@echo "$(YELLOW)等待服務啟動...$(NC)"
 	@sleep 10
 	@echo "$(YELLOW)檢查服務健康狀態...$(NC)"

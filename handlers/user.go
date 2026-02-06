@@ -14,6 +14,13 @@ import (
 )
 
 // GetUserProfile handles user profile retrieval
+// @Summary Get user profile
+// @Description Retrieves user profile information. Generates 4-5 spans with 110-310ms duration.
+// @Tags Users
+// @Produce json
+// @Param user_id query string false "User ID (default: user_12345)"
+// @Success 200 {object} models.UserProfileResponse "User profile retrieved successfully"
+// @Router /api/user/profile [get]
 func GetUserProfile(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx, span := tracer.Start(ctx, "GET /api/user/profile",

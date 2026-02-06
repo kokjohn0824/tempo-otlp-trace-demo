@@ -16,6 +16,16 @@ import (
 )
 
 // Simulate handles custom simulation requests
+// @Summary Simulate custom trace generation
+// @Description Generates a custom trace tree with configurable depth, breadth, duration, and variance. Creates a hierarchical trace structure for testing.
+// @Tags Simulation
+// @Produce json
+// @Param depth query int false "Maximum depth of trace tree (default: 3, max: 10)"
+// @Param breadth query int false "Number of spans per level (default: 2, max: 5)"
+// @Param duration query int false "Base duration in milliseconds (default: 100, max: 1000)"
+// @Param variance query number false "Duration variance factor (default: 0.5, max: 1.0)"
+// @Success 200 {object} models.SimulateResponse "Simulation completed successfully"
+// @Router /api/simulate [get]
 func Simulate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx, span := tracer.Start(ctx, "GET /api/simulate",

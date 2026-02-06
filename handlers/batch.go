@@ -15,6 +15,15 @@ import (
 )
 
 // ProcessBatch handles batch processing requests
+// @Summary Process a batch of items
+// @Description Processes a batch of items with comprehensive tracing. Generates 6-15 spans with 300-1500ms duration depending on batch size.
+// @Tags Batch
+// @Accept json
+// @Produce json
+// @Param request body models.BatchRequest true "Batch processing request"
+// @Success 200 {object} models.BatchResponse "Batch processed successfully"
+// @Failure 400 {object} models.ErrorResponse "Invalid request"
+// @Router /api/batch/process [post]
 func ProcessBatch(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx, span := tracer.Start(ctx, "POST /api/batch/process",

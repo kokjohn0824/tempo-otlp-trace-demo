@@ -18,6 +18,15 @@ import (
 var tracer = otel.Tracer("trace-demo-service")
 
 // CreateOrder handles order creation with comprehensive tracing
+// @Summary Create a new order
+// @Description Creates an order with comprehensive tracing. Generates 10-12 spans with 600-1500ms duration. If sleep=true, adds 5s delay to payment processing to simulate slow operation.
+// @Tags Orders
+// @Accept json
+// @Produce json
+// @Param request body models.OrderRequest true "Order creation request"
+// @Success 200 {object} models.OrderResponse "Order created successfully"
+// @Failure 400 {object} models.ErrorResponse "Invalid request"
+// @Router /api/order/create [post]
 func CreateOrder(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx, span := tracer.Start(ctx, "POST /api/order/create",

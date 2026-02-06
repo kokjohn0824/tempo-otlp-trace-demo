@@ -16,6 +16,15 @@ import (
 )
 
 // Search handles search requests
+// @Summary Search for items
+// @Description Performs a search operation with comprehensive tracing. Generates 6-7 spans with 210-530ms duration.
+// @Tags Search
+// @Produce json
+// @Param q query string false "Search query (default: default)"
+// @Param page query int false "Page number (default: 1)"
+// @Param limit query int false "Results per page (default: 10)"
+// @Success 200 {object} models.SearchResponse "Search completed successfully"
+// @Router /api/search [get]
 func Search(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx, span := tracer.Start(ctx, "GET /api/search",

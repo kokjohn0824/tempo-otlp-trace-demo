@@ -15,6 +15,46 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/batch/process": {
+            "post": {
+                "description": "Processes a batch of items with comprehensive tracing. Generates 6-15 spans with 300-1500ms duration depending on batch size.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Batch"
+                ],
+                "summary": "Process a batch of items",
+                "parameters": [
+                    {
+                        "description": "Batch processing request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.BatchRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Batch processed successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.BatchResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/mappings": {
             "get": {
                 "description": "Returns all configured source code mappings",
@@ -138,6 +178,172 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/order/create": {
+            "post": {
+                "description": "Creates an order with comprehensive tracing. Generates 10-12 spans with 600-1500ms duration. If sleep=true, adds 5s delay to payment processing to simulate slow operation.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Create a new order",
+                "parameters": [
+                    {
+                        "description": "Order creation request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.OrderRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.OrderResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/report/generate": {
+            "post": {
+                "description": "Generates a report with comprehensive tracing. LONG TRACE - Generates 10-12 spans with 1500-3500ms duration.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "Generate a report",
+                "parameters": [
+                    {
+                        "description": "Report generation request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ReportRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Report generated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.ReportResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/search": {
+            "get": {
+                "description": "Performs a search operation with comprehensive tracing. Generates 6-7 spans with 210-530ms duration.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Search"
+                ],
+                "summary": "Search for items",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search query (default: default)",
+                        "name": "q",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number (default: 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Results per page (default: 10)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Search completed successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.SearchResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/simulate": {
+            "get": {
+                "description": "Generates a custom trace tree with configurable depth, breadth, duration, and variance. Creates a hierarchical trace structure for testing.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Simulation"
+                ],
+                "summary": "Simulate custom trace generation",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Maximum depth of trace tree (default: 3, max: 10)",
+                        "name": "depth",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of spans per level (default: 2, max: 5)",
+                        "name": "breadth",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Base duration in milliseconds (default: 100, max: 1000)",
+                        "name": "duration",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Duration variance factor (default: 0.5, max: 1.0)",
+                        "name": "variance",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Simulation completed successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.SimulateResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/source-code": {
             "post": {
                 "description": "Retrieves the source code associated with a specific span name",
@@ -203,6 +409,54 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/user/profile": {
+            "get": {
+                "description": "Retrieves user profile information. Generates 4-5 spans with 110-310ms duration.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get user profile",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID (default: user_12345)",
+                        "name": "user_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User profile retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserProfileResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "description": "Returns the health status of the service",
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Health check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -259,6 +513,54 @@ const docTemplate = `{
                 }
             }
         },
+        "models.BatchRequest": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "models.BatchResponse": {
+            "type": "object",
+            "properties": {
+                "batch_id": {
+                    "type": "string"
+                },
+                "failed_count": {
+                    "type": "integer"
+                },
+                "processed_count": {
+                    "type": "integer"
+                },
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "error": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "models.MappingRequest": {
             "type": "object",
             "properties": {
@@ -284,6 +586,135 @@ const docTemplate = `{
                 "status": {
                     "type": "string",
                     "example": "success"
+                }
+            }
+        },
+        "models.OrderRequest": {
+            "type": "object",
+            "properties": {
+                "price": {
+                    "type": "number"
+                },
+                "product_id": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "sleep": {
+                    "description": "If true, simulate slow operation by adding 5s delay to processPayment",
+                    "type": "boolean"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.OrderResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "order_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "total_cost": {
+                    "type": "number"
+                }
+            }
+        },
+        "models.ReportRequest": {
+            "type": "object",
+            "properties": {
+                "end_date": {
+                    "type": "string"
+                },
+                "filters": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "report_type": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ReportResponse": {
+            "type": "object",
+            "properties": {
+                "duration": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "report_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SearchResponse": {
+            "type": "object",
+            "properties": {
+                "page": {
+                    "type": "integer"
+                },
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.SearchResult"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.SearchResult": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "number"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SimulateResponse": {
+            "type": "object",
+            "properties": {
+                "duration": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "span_count": {
+                    "type": "integer"
+                },
+                "trace_id": {
+                    "type": "string"
                 }
             }
         },
@@ -350,6 +781,26 @@ const docTemplate = `{
                     "example": 21
                 }
             }
+        },
+        "models.UserProfileResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "preferences": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
         }
     }
 }`
@@ -357,7 +808,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "192.168.4.208:3202",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Tempo OTLP Trace Demo API",

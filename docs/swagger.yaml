@@ -37,6 +37,37 @@ definitions:
           $ref: '#/definitions/handlers.SpanNameInfo'
         type: array
     type: object
+  models.BatchRequest:
+    properties:
+      items:
+        items:
+          type: string
+        type: array
+    type: object
+  models.BatchResponse:
+    properties:
+      batch_id:
+        type: string
+      failed_count:
+        type: integer
+      processed_count:
+        type: integer
+      results:
+        items:
+          type: string
+        type: array
+      status:
+        type: string
+    type: object
+  models.ErrorResponse:
+    properties:
+      code:
+        type: integer
+      error:
+        type: string
+      message:
+        type: string
+    type: object
   models.MappingRequest:
     properties:
       mappings:
@@ -54,6 +85,90 @@ definitions:
         type: string
       status:
         example: success
+        type: string
+    type: object
+  models.OrderRequest:
+    properties:
+      price:
+        type: number
+      product_id:
+        type: string
+      quantity:
+        type: integer
+      sleep:
+        description: If true, simulate slow operation by adding 5s delay to processPayment
+        type: boolean
+      user_id:
+        type: string
+    type: object
+  models.OrderResponse:
+    properties:
+      message:
+        type: string
+      order_id:
+        type: string
+      status:
+        type: string
+      total_cost:
+        type: number
+    type: object
+  models.ReportRequest:
+    properties:
+      end_date:
+        type: string
+      filters:
+        items:
+          type: string
+        type: array
+      report_type:
+        type: string
+      start_date:
+        type: string
+    type: object
+  models.ReportResponse:
+    properties:
+      duration:
+        type: string
+      message:
+        type: string
+      report_id:
+        type: string
+      status:
+        type: string
+      url:
+        type: string
+    type: object
+  models.SearchResponse:
+    properties:
+      page:
+        type: integer
+      results:
+        items:
+          $ref: '#/definitions/models.SearchResult'
+        type: array
+      total:
+        type: integer
+    type: object
+  models.SearchResult:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      score:
+        type: number
+      title:
+        type: string
+    type: object
+  models.SimulateResponse:
+    properties:
+      duration:
+        type: string
+      message:
+        type: string
+      span_count:
+        type: integer
+      trace_id:
         type: string
     type: object
   models.SourceCodeMapping:
@@ -104,7 +219,20 @@ definitions:
         example: 21
         type: integer
     type: object
-host: localhost:8080
+  models.UserProfileResponse:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      preferences:
+        additionalProperties:
+          type: string
+        type: object
+      user_id:
+        type: string
+    type: object
+host: 192.168.4.208:3202
 info:
   contact: {}
   description: API for generating traces and retrieving source code mappings for performance
@@ -112,6 +240,33 @@ info:
   title: Tempo OTLP Trace Demo API
   version: "1.0"
 paths:
+  /api/batch/process:
+    post:
+      consumes:
+      - application/json
+      description: Processes a batch of items with comprehensive tracing. Generates
+        6-15 spans with 300-1500ms duration depending on batch size.
+      parameters:
+      - description: Batch processing request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.BatchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Batch processed successfully
+          schema:
+            $ref: '#/definitions/models.BatchResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Process a batch of items
+      tags:
+      - Batch
   /api/mappings:
     delete:
       description: Deletes a specific source code mapping by span name
@@ -193,6 +348,119 @@ paths:
       summary: Reload mappings from file
       tags:
       - Mappings
+  /api/order/create:
+    post:
+      consumes:
+      - application/json
+      description: Creates an order with comprehensive tracing. Generates 10-12 spans
+        with 600-1500ms duration. If sleep=true, adds 5s delay to payment processing
+        to simulate slow operation.
+      parameters:
+      - description: Order creation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.OrderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order created successfully
+          schema:
+            $ref: '#/definitions/models.OrderResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Create a new order
+      tags:
+      - Orders
+  /api/report/generate:
+    post:
+      consumes:
+      - application/json
+      description: Generates a report with comprehensive tracing. LONG TRACE - Generates
+        10-12 spans with 1500-3500ms duration.
+      parameters:
+      - description: Report generation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ReportRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Report generated successfully
+          schema:
+            $ref: '#/definitions/models.ReportResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Generate a report
+      tags:
+      - Reports
+  /api/search:
+    get:
+      description: Performs a search operation with comprehensive tracing. Generates
+        6-7 spans with 210-530ms duration.
+      parameters:
+      - description: 'Search query (default: default)'
+        in: query
+        name: q
+        type: string
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Results per page (default: 10)'
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Search completed successfully
+          schema:
+            $ref: '#/definitions/models.SearchResponse'
+      summary: Search for items
+      tags:
+      - Search
+  /api/simulate:
+    get:
+      description: Generates a custom trace tree with configurable depth, breadth,
+        duration, and variance. Creates a hierarchical trace structure for testing.
+      parameters:
+      - description: 'Maximum depth of trace tree (default: 3, max: 10)'
+        in: query
+        name: depth
+        type: integer
+      - description: 'Number of spans per level (default: 2, max: 5)'
+        in: query
+        name: breadth
+        type: integer
+      - description: 'Base duration in milliseconds (default: 100, max: 1000)'
+        in: query
+        name: duration
+        type: integer
+      - description: 'Duration variance factor (default: 0.5, max: 1.0)'
+        in: query
+        name: variance
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Simulation completed successfully
+          schema:
+            $ref: '#/definitions/models.SimulateResponse'
+      summary: Simulate custom trace generation
+      tags:
+      - Simulation
   /api/source-code:
     post:
       consumes:
@@ -236,4 +504,36 @@ paths:
       summary: Get all available span names
       tags:
       - Source Code
+  /api/user/profile:
+    get:
+      description: Retrieves user profile information. Generates 4-5 spans with 110-310ms
+        duration.
+      parameters:
+      - description: 'User ID (default: user_12345)'
+        in: query
+        name: user_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User profile retrieved successfully
+          schema:
+            $ref: '#/definitions/models.UserProfileResponse'
+      summary: Get user profile
+      tags:
+      - Users
+  /health:
+    get:
+      description: Returns the health status of the service
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Health check
+      tags:
+      - Health
 swagger: "2.0"

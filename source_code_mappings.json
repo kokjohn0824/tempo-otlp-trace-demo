@@ -1,332 +1,381 @@
 {
   "mappings": [
     {
-      "span_name": "POST /api/order/create",
-      "file_path": "handlers/order.go",
-      "function_name": "CreateOrder",
-      "start_line": 21,
-      "end_line": 85,
-      "description": "Handles order creation with comprehensive tracing"
-    },
-    {
-      "span_name": "GET /api/user/profile",
-      "file_path": "handlers/user.go",
-      "function_name": "GetUserProfile",
-      "start_line": 17,
-      "end_line": 54,
-      "description": "Handles user profile retrieval"
-    },
-    {
-      "span_name": "POST /api/report/generate",
-      "file_path": "handlers/report.go",
-      "function_name": "GenerateReport",
-      "start_line": 18,
-      "end_line": 84,
-      "description": "Handles report generation (long-running operation)"
-    },
-    {
-      "span_name": "GET /api/search",
-      "file_path": "handlers/search.go",
-      "function_name": "Search",
-      "start_line": 19,
-      "end_line": 86,
-      "description": "Handles search requests"
-    },
-    {
       "span_name": "POST /api/batch/process",
       "file_path": "handlers/batch.go",
       "function_name": "ProcessBatch",
-      "start_line": 18,
-      "end_line": 88,
+      "start_line": 27,
+      "end_line": 97,
       "description": "Handles batch processing requests"
-    },
-    {
-      "span_name": "validateOrder",
-      "file_path": "handlers/order.go",
-      "function_name": "validateOrder",
-      "start_line": 87,
-      "end_line": 98,
-      "description": "Validates order request"
-    },
-    {
-      "span_name": "checkInventory",
-      "file_path": "handlers/order.go",
-      "function_name": "checkInventory",
-      "start_line": 100,
-      "end_line": 115,
-      "description": "Checks product inventory availability"
-    },
-    {
-      "span_name": "calculatePrice",
-      "file_path": "handlers/order.go",
-      "function_name": "calculatePrice",
-      "start_line": 117,
-      "end_line": 134,
-      "description": "Calculates total order price"
-    },
-    {
-      "span_name": "processPayment",
-      "file_path": "handlers/order.go",
-      "function_name": "processPayment",
-      "start_line": 136,
-      "end_line": 153,
-      "description": "Processes payment with nested operations"
-    },
-    {
-      "span_name": "callPaymentGateway",
-      "file_path": "handlers/order.go",
-      "function_name": "callPaymentGateway",
-      "start_line": 155,
-      "end_line": 170,
-      "description": "Calls external payment gateway"
-    },
-    {
-      "span_name": "recordTransaction",
-      "file_path": "handlers/order.go",
-      "function_name": "recordTransaction",
-      "start_line": 172,
-      "end_line": 186,
-      "description": "Records transaction in database"
-    },
-    {
-      "span_name": "createShipment",
-      "file_path": "handlers/order.go",
-      "function_name": "createShipment",
-      "start_line": 188,
-      "end_line": 202,
-      "description": "Creates shipment for order"
-    },
-    {
-      "span_name": "sendNotification",
-      "file_path": "handlers/order.go",
-      "function_name": "sendNotification",
-      "start_line": 204,
-      "end_line": 220,
-      "description": "Sends notifications via multiple channels"
-    },
-    {
-      "span_name": "sendEmail",
-      "file_path": "handlers/order.go",
-      "function_name": "sendEmail",
-      "start_line": 222,
-      "end_line": 234,
-      "description": "Sends email notification"
-    },
-    {
-      "span_name": "sendSMS",
-      "file_path": "handlers/order.go",
-      "function_name": "sendSMS",
-      "start_line": 236,
-      "end_line": 248,
-      "description": "Sends SMS notification"
-    },
-    {
-      "span_name": "saveToDatabase",
-      "file_path": "handlers/order.go",
-      "function_name": "saveToDatabase",
-      "start_line": 250,
-      "end_line": 268,
-      "description": "Saves data to database"
-    },
-    {
-      "span_name": "authenticate",
-      "file_path": "handlers/user.go",
-      "function_name": "authenticate",
-      "start_line": 56,
-      "end_line": 68,
-      "description": "Authenticates user"
-    },
-    {
-      "span_name": "queryDatabase",
-      "file_path": "handlers/user.go",
-      "function_name": "queryDatabase",
-      "start_line": 70,
-      "end_line": 93,
-      "description": "Queries database for user data"
-    },
-    {
-      "span_name": "loadPreferences",
-      "file_path": "handlers/user.go",
-      "function_name": "loadPreferences",
-      "start_line": 95,
-      "end_line": 117,
-      "description": "Loads user preferences from cache"
-    },
-    {
-      "span_name": "formatResponse",
-      "file_path": "handlers/user.go",
-      "function_name": "formatResponse",
-      "start_line": 119,
-      "end_line": 139,
-      "description": "Formats API response"
-    },
-    {
-      "span_name": "validateRequest",
-      "file_path": "handlers/report.go",
-      "function_name": "validateReportRequest",
-      "start_line": 86,
-      "end_line": 98,
-      "description": "Validates report request"
-    },
-    {
-      "span_name": "fetchDataFromMultipleSources",
-      "file_path": "handlers/report.go",
-      "function_name": "fetchDataFromMultipleSources",
-      "start_line": 100,
-      "end_line": 126,
-      "description": "Fetches data from multiple sources"
-    },
-    {
-      "span_name": "queryMainDB",
-      "file_path": "handlers/report.go",
-      "function_name": "queryMainDB",
-      "start_line": 128,
-      "end_line": 149,
-      "description": "Queries main database"
-    },
-    {
-      "span_name": "queryAnalyticsDB",
-      "file_path": "handlers/report.go",
-      "function_name": "queryAnalyticsDB",
-      "start_line": 151,
-      "end_line": 172,
-      "description": "Queries analytics database"
-    },
-    {
-      "span_name": "fetchExternalAPI",
-      "file_path": "handlers/report.go",
-      "function_name": "fetchExternalAPI",
-      "start_line": 174,
-      "end_line": 195,
-      "description": "Fetches data from external API"
-    },
-    {
-      "span_name": "processData",
-      "file_path": "handlers/report.go",
-      "function_name": "processReportData",
-      "start_line": 197,
-      "end_line": 218,
-      "description": "Processes report data"
-    },
-    {
-      "span_name": "aggregateData",
-      "file_path": "handlers/report.go",
-      "function_name": "aggregateData",
-      "start_line": 220,
-      "end_line": 239,
-      "description": "Aggregates data for report"
-    },
-    {
-      "span_name": "calculateMetrics",
-      "file_path": "handlers/report.go",
-      "function_name": "calculateMetrics",
-      "start_line": 241,
-      "end_line": 261,
-      "description": "Calculates metrics for report"
-    },
-    {
-      "span_name": "generatePDF",
-      "file_path": "handlers/report.go",
-      "function_name": "generatePDF",
-      "start_line": 263,
-      "end_line": 284,
-      "description": "Generates PDF report"
-    },
-    {
-      "span_name": "uploadToStorage",
-      "file_path": "handlers/report.go",
-      "function_name": "uploadToStorage",
-      "start_line": 286,
-      "end_line": 304,
-      "description": "Uploads file to cloud storage"
-    },
-    {
-      "span_name": "notifyUser",
-      "file_path": "handlers/report.go",
-      "function_name": "notifyUser",
-      "start_line": 306,
-      "end_line": 318,
-      "description": "Notifies user about report completion"
-    },
-    {
-      "span_name": "parseQuery",
-      "file_path": "handlers/search.go",
-      "function_name": "parseQuery",
-      "start_line": 88,
-      "end_line": 105,
-      "description": "Parses search query"
-    },
-    {
-      "span_name": "searchIndex",
-      "file_path": "handlers/search.go",
-      "function_name": "searchIndex",
-      "start_line": 107,
-      "end_line": 134,
-      "description": "Searches Elasticsearch index"
-    },
-    {
-      "span_name": "rankResults",
-      "file_path": "handlers/search.go",
-      "function_name": "rankResults",
-      "start_line": 136,
-      "end_line": 150,
-      "description": "Ranks search results"
-    },
-    {
-      "span_name": "fetchDetails",
-      "file_path": "handlers/search.go",
-      "function_name": "fetchDetails",
-      "start_line": 152,
-      "end_line": 166,
-      "description": "Fetches detailed information"
-    },
-    {
-      "span_name": "batchQuery",
-      "file_path": "handlers/search.go",
-      "function_name": "batchQuery",
-      "start_line": 168,
-      "end_line": 196,
-      "description": "Executes batch database query"
-    },
-    {
-      "span_name": "applyFilters",
-      "file_path": "handlers/search.go",
-      "function_name": "applyFilters",
-      "start_line": 198,
-      "end_line": 214,
-      "description": "Applies filters to search results"
     },
     {
       "span_name": "validateBatch",
       "file_path": "handlers/batch.go",
       "function_name": "validateBatch",
-      "start_line": 90,
-      "end_line": 102,
+      "start_line": 99,
+      "end_line": 111,
       "description": "Validates batch request"
     },
     {
       "span_name": "processItems",
       "file_path": "handlers/batch.go",
       "function_name": "processItems",
-      "start_line": 104,
-      "end_line": 123,
+      "start_line": 113,
+      "end_line": 132,
       "description": "Processes batch items"
     },
     {
       "span_name": "aggregateResults",
       "file_path": "handlers/batch.go",
       "function_name": "aggregateResults",
-      "start_line": 152,
-      "end_line": 187,
+      "start_line": 161,
+      "end_line": 196,
       "description": "Aggregates batch processing results"
     },
     {
       "span_name": "saveResults",
       "file_path": "handlers/batch.go",
       "function_name": "saveBatchResults",
-      "start_line": 189,
-      "end_line": 207,
+      "start_line": 198,
+      "end_line": 216,
       "description": "Saves batch results to database"
+    },
+    {
+      "span_name": "POST /api/order/create",
+      "file_path": "handlers/order.go",
+      "function_name": "CreateOrder",
+      "start_line": 30,
+      "end_line": 96,
+      "description": "Handles order creation with comprehensive tracing"
+    },
+    {
+      "span_name": "validateOrder",
+      "file_path": "handlers/order.go",
+      "function_name": "validateOrder",
+      "start_line": 98,
+      "end_line": 109,
+      "description": "Validates order request"
+    },
+    {
+      "span_name": "checkInventory",
+      "file_path": "handlers/order.go",
+      "function_name": "checkInventory",
+      "start_line": 111,
+      "end_line": 126,
+      "description": "Checks product inventory availability"
+    },
+    {
+      "span_name": "calculatePrice",
+      "file_path": "handlers/order.go",
+      "function_name": "calculatePrice",
+      "start_line": 128,
+      "end_line": 145,
+      "description": "Calculates total order price"
+    },
+    {
+      "span_name": "processPayment",
+      "file_path": "handlers/order.go",
+      "function_name": "processPayment",
+      "start_line": 147,
+      "end_line": 171,
+      "description": "Processes payment with nested operations"
+    },
+    {
+      "span_name": "callPaymentGateway",
+      "file_path": "handlers/order.go",
+      "function_name": "callPaymentGateway",
+      "start_line": 173,
+      "end_line": 188,
+      "description": "Calls external payment gateway"
+    },
+    {
+      "span_name": "recordTransaction",
+      "file_path": "handlers/order.go",
+      "function_name": "recordTransaction",
+      "start_line": 190,
+      "end_line": 204,
+      "description": "Records transaction in database"
+    },
+    {
+      "span_name": "createShipment",
+      "file_path": "handlers/order.go",
+      "function_name": "createShipment",
+      "start_line": 206,
+      "end_line": 220,
+      "description": "Creates shipment for order"
+    },
+    {
+      "span_name": "sendNotification",
+      "file_path": "handlers/order.go",
+      "function_name": "sendNotification",
+      "start_line": 222,
+      "end_line": 238,
+      "description": "Sends notifications via multiple channels"
+    },
+    {
+      "span_name": "sendEmail",
+      "file_path": "handlers/order.go",
+      "function_name": "sendEmail",
+      "start_line": 240,
+      "end_line": 252,
+      "description": "Sends email notification"
+    },
+    {
+      "span_name": "sendSMS",
+      "file_path": "handlers/order.go",
+      "function_name": "sendSMS",
+      "start_line": 254,
+      "end_line": 266,
+      "description": "Sends SMS notification"
+    },
+    {
+      "span_name": "saveToDatabase",
+      "file_path": "handlers/order.go",
+      "function_name": "saveToDatabase",
+      "start_line": 268,
+      "end_line": 286,
+      "description": "Saves data to database"
+    },
+    {
+      "span_name": "POST /api/report/generate",
+      "file_path": "handlers/report.go",
+      "function_name": "GenerateReport",
+      "start_line": 27,
+      "end_line": 93,
+      "description": "Handles report generation (long-running operation)"
+    },
+    {
+      "span_name": "validateRequest",
+      "file_path": "handlers/report.go",
+      "function_name": "validateReportRequest",
+      "start_line": 95,
+      "end_line": 107,
+      "description": "Validates report request"
+    },
+    {
+      "span_name": "fetchDataFromMultipleSources",
+      "file_path": "handlers/report.go",
+      "function_name": "fetchDataFromMultipleSources",
+      "start_line": 109,
+      "end_line": 135,
+      "description": "Fetches data from multiple sources"
+    },
+    {
+      "span_name": "queryMainDB",
+      "file_path": "handlers/report.go",
+      "function_name": "queryMainDB",
+      "start_line": 137,
+      "end_line": 158,
+      "description": "Queries main database"
+    },
+    {
+      "span_name": "queryAnalyticsDB",
+      "file_path": "handlers/report.go",
+      "function_name": "queryAnalyticsDB",
+      "start_line": 160,
+      "end_line": 181,
+      "description": "Queries analytics database"
+    },
+    {
+      "span_name": "fetchExternalAPI",
+      "file_path": "handlers/report.go",
+      "function_name": "fetchExternalAPI",
+      "start_line": 183,
+      "end_line": 204,
+      "description": "Fetches data from external API"
+    },
+    {
+      "span_name": "processData",
+      "file_path": "handlers/report.go",
+      "function_name": "processReportData",
+      "start_line": 206,
+      "end_line": 227,
+      "description": "Processes report data"
+    },
+    {
+      "span_name": "aggregateData",
+      "file_path": "handlers/report.go",
+      "function_name": "aggregateData",
+      "start_line": 229,
+      "end_line": 248,
+      "description": "Aggregates data for report"
+    },
+    {
+      "span_name": "calculateMetrics",
+      "file_path": "handlers/report.go",
+      "function_name": "calculateMetrics",
+      "start_line": 250,
+      "end_line": 270,
+      "description": "Calculates metrics for report"
+    },
+    {
+      "span_name": "generatePDF",
+      "file_path": "handlers/report.go",
+      "function_name": "generatePDF",
+      "start_line": 272,
+      "end_line": 293,
+      "description": "Generates PDF report"
+    },
+    {
+      "span_name": "uploadToStorage",
+      "file_path": "handlers/report.go",
+      "function_name": "uploadToStorage",
+      "start_line": 295,
+      "end_line": 313,
+      "description": "Uploads file to cloud storage"
+    },
+    {
+      "span_name": "notifyUser",
+      "file_path": "handlers/report.go",
+      "function_name": "notifyUser",
+      "start_line": 315,
+      "end_line": 327,
+      "description": "Notifies user about report completion"
+    },
+    {
+      "span_name": "GET /api/search",
+      "file_path": "handlers/search.go",
+      "function_name": "Search",
+      "start_line": 28,
+      "end_line": 95,
+      "description": "Handles search requests"
+    },
+    {
+      "span_name": "parseQuery",
+      "file_path": "handlers/search.go",
+      "function_name": "parseQuery",
+      "start_line": 97,
+      "end_line": 114,
+      "description": "Parses search query"
+    },
+    {
+      "span_name": "searchIndex",
+      "file_path": "handlers/search.go",
+      "function_name": "searchIndex",
+      "start_line": 116,
+      "end_line": 143,
+      "description": "Searches Elasticsearch index"
+    },
+    {
+      "span_name": "rankResults",
+      "file_path": "handlers/search.go",
+      "function_name": "rankResults",
+      "start_line": 145,
+      "end_line": 159,
+      "description": "Ranks search results"
+    },
+    {
+      "span_name": "fetchDetails",
+      "file_path": "handlers/search.go",
+      "function_name": "fetchDetails",
+      "start_line": 161,
+      "end_line": 175,
+      "description": "Fetches detailed information"
+    },
+    {
+      "span_name": "batchQuery",
+      "file_path": "handlers/search.go",
+      "function_name": "batchQuery",
+      "start_line": 177,
+      "end_line": 205,
+      "description": "Executes batch database query"
+    },
+    {
+      "span_name": "applyFilters",
+      "file_path": "handlers/search.go",
+      "function_name": "applyFilters",
+      "start_line": 207,
+      "end_line": 223,
+      "description": "Applies filters to search results"
+    },
+    {
+      "span_name": "GET /api/simulate",
+      "file_path": "handlers/simulate.go",
+      "function_name": "Simulate",
+      "start_line": 29,
+      "end_line": 95
+    },
+    {
+      "span_name": "POST /api/source-code",
+      "file_path": "handlers/sourcecode.go",
+      "function_name": "GetSourceCode",
+      "start_line": 109,
+      "end_line": 179
+    },
+    {
+      "span_name": "POST /api/mappings",
+      "file_path": "handlers/sourcecode.go",
+      "function_name": "UpdateMappings",
+      "start_line": 227,
+      "end_line": 280
+    },
+    {
+      "span_name": "GET /api/mappings",
+      "file_path": "handlers/sourcecode.go",
+      "function_name": "GetMappings",
+      "start_line": 289,
+      "end_line": 317
+    },
+    {
+      "span_name": "DELETE /api/mappings",
+      "file_path": "handlers/sourcecode.go",
+      "function_name": "DeleteMapping",
+      "start_line": 329,
+      "end_line": 380
+    },
+    {
+      "span_name": "POST /api/mappings/reload",
+      "file_path": "handlers/sourcecode.go",
+      "function_name": "ReloadMappings",
+      "start_line": 390,
+      "end_line": 424
+    },
+    {
+      "span_name": "GET /api/span-names",
+      "file_path": "handlers/spannames.go",
+      "function_name": "GetSpanNames",
+      "start_line": 37,
+      "end_line": 79
+    },
+    {
+      "span_name": "GET /api/user/profile",
+      "file_path": "handlers/user.go",
+      "function_name": "GetUserProfile",
+      "start_line": 24,
+      "end_line": 61,
+      "description": "Handles user profile retrieval"
+    },
+    {
+      "span_name": "authenticate",
+      "file_path": "handlers/user.go",
+      "function_name": "authenticate",
+      "start_line": 63,
+      "end_line": 75,
+      "description": "Authenticates user"
+    },
+    {
+      "span_name": "queryDatabase",
+      "file_path": "handlers/user.go",
+      "function_name": "queryDatabase",
+      "start_line": 77,
+      "end_line": 100,
+      "description": "Queries database for user data"
+    },
+    {
+      "span_name": "loadPreferences",
+      "file_path": "handlers/user.go",
+      "function_name": "loadPreferences",
+      "start_line": 102,
+      "end_line": 124,
+      "description": "Loads user preferences from cache"
+    },
+    {
+      "span_name": "formatResponse",
+      "file_path": "handlers/user.go",
+      "function_name": "formatResponse",
+      "start_line": 126,
+      "end_line": 146,
+      "description": "Formats API response"
     }
   ]
 }

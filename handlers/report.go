@@ -15,6 +15,15 @@ import (
 )
 
 // GenerateReport handles report generation (long-running operation)
+// @Summary Generate a report
+// @Description Generates a report with comprehensive tracing. LONG TRACE - Generates 10-12 spans with 1500-3500ms duration.
+// @Tags Reports
+// @Accept json
+// @Produce json
+// @Param request body models.ReportRequest true "Report generation request"
+// @Success 200 {object} models.ReportResponse "Report generated successfully"
+// @Failure 400 {object} models.ErrorResponse "Invalid request"
+// @Router /api/report/generate [post]
 func GenerateReport(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 	ctx := r.Context()
